@@ -320,7 +320,7 @@ bitflags::bitflags! {
     ///   - You may also use ImGuiChildFlags_AlwaysAutoResize to force an update even when child window is not in view.
     ///     HOWEVER PLEASE UNDERSTAND THAT DOING SO WILL PREVENT BeginChild() FROM EVER RETURNING FALSE, disabling benefits of coarse clipping.
     #[repr(transparent)]
-    pub struct ChildFlags: u32 {
+    pub struct ChildFlags: i32 {
         /// Show an outer border and enable WindowPadding
         const BORDERS = sys::ImGuiChildFlags_Borders;
         /// Pad with style.WindowPadding even if no border are drawn

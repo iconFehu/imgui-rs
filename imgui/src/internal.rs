@@ -128,7 +128,7 @@ pub unsafe trait RawCast<T>: Sized {
 }
 
 /// A primary data type
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum DataType {
     I8 = sys::ImGuiDataType_S8,

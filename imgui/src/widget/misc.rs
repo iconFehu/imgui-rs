@@ -8,7 +8,7 @@ use crate::{Direction, Ui};
 bitflags!(
     /// Flags for invisible buttons
     #[repr(transparent)]
-    pub struct ButtonFlags: u32 {
+    pub struct ButtonFlags: i32 {
         /// React on left mouse button
         const MOUSE_BUTTON_LEFT = sys::ImGuiButtonFlags_MouseButtonLeft;
         /// React on right mouse button

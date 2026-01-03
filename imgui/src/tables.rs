@@ -31,7 +31,7 @@ bitflags! {
     ///      If you specify a value for `inner_width` then effectively the scrolling space is known and [Stretch] or mixed [Fixed]/[Stretch] columns become meaningful again.
     /// - Read on documentation at the top of imgui_tables.cpp for more details.
     #[repr(transparent)]
-    pub struct TableFlags: u32 {
+    pub struct TableFlags: i32 {
         // Features
 
         /// Enable resizing columns.
@@ -151,7 +151,7 @@ bitflags! {
 bitflags! {
     /// Flags for [table_next_row_with_flags].
     #[repr(transparent)]
-    pub struct TableRowFlags: u32 {
+    pub struct TableRowFlags: i32 {
         /// Identify header row (set default background color + width of its contents
         /// accounted different for auto column width)
         const HEADERS = sys::ImGuiTableRowFlags_Headers;
@@ -162,7 +162,7 @@ bitflags! {
     /// Flags for [TableColumnSetup] and [table_setup_column_with].
     #[repr(transparent)]
     #[derive(Default)]
-    pub struct TableColumnFlags: u32 {
+    pub struct TableColumnFlags: i32 {
         // Input configuration flags
 
         /// Default as a hidden/disabled column.
@@ -232,7 +232,7 @@ bitflags! {
     /// If you set the color of RowBg0 target, your color will override the existing RowBg0 color.
     /// If you set the color of RowBg1 or ColumnBg1 target, your color will blend over the RowBg0 color.
     #[repr(transparent)]
-    pub struct TableBgTarget: u32 {
+    pub struct TableBgTarget: i32 {
         /// Set row background color 0 (generally used for background, automatically set when
         /// [TableFlags::RowBg] is used)
         const ROW_BG0 = sys::ImGuiTableBgTarget_RowBg0;

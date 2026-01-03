@@ -1,5 +1,6 @@
 use crate::flags::Bindgen;
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{anyhow, Context, Result};
+use bindgen::Builder;
 use std::path::{Path, PathBuf};
 
 impl Bindgen {
@@ -114,47 +115,40 @@ fn generate_binding_file(
     funcs: &[String],
     wasm_import_mod: Option<&str>,
 ) -> Result<()> {
-    let mut cmd = std::process::Command::new("bindgen");
-    let a = &[
-        "--size_t-is-usize",
-        "--no-prepend-enum-name",
-        "--no-doc-comments",
+    let mut builder = Builder::default()
+        .header(header.to_string_lossy())
+        .size_t_is_usize(true)
+        .prepend_enum_name(false)
+        .generate_comments(false)
         // Layout tests aren't portable (they hardcode type sizes), and for
         // our case they just serve to sanity check rustc's implementation of
         // `#[repr(C)]`. If we bind directly to C++ ever, we should reconsider this.
-        "--no-layout-tests",
-        "--with-derive-default",
-        "--with-derive-partialeq",
-        "--with-derive-eq",
-        "--with-derive-hash",
-        "--impl-debug",
-        "--use-core",
-    ];
-    cmd.args(a);
-    cmd.args(["--blocklist-type", "__darwin_size_t"]);
-    cmd.args(["--raw-line", "#![allow(nonstandard_style, clippy::all)]"]);
-    cmd.arg("--output").arg(output);
-    cmd.args(["--ctypes-prefix", "cty"]);
+        .layout_tests(false)
+        .derive_default(true)
+        .derive_partialeq(true)
+        .derive_eq(true)
+        .derive_hash(true)
+        .impl_debug(true)
+        .use_core()
+        .blocklist_type("__darwin_size_t")
+        .raw_line("#![allow(nonstandard_style, clippy::all)]")
+        .clang_arg("-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS=1");
 
     if let Some(name) = wasm_import_mod {
-        cmd.args(["--wasm-import-module-name", name]);
+        builder = builder.wasm_import_module_name(name);
     }
     for t in types {
-        cmd.args(["--allowlist-type", t]);
+        builder = builder.allowlist_type(t);
     }
     for f in funcs {
-        cmd.args(["--allowlist-function", f]);
+        builder = builder.allowlist_function(f);
     }
-    cmd.arg(header);
-    cmd.args(["--", "-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS=1"]);
+
     eprintln!("Executing bindgen [output = {}]", output.display());
-    let status = cmd.status().context("Failed to execute bindgen")?;
-    if !status.success() {
-        bail!(
-            "Failed to execute bindgen: {}, see output for details",
-            status
-        );
-    }
+    let bindings = builder.generate().context("Failed to execute bindgen")?;
+    bindings
+        .write_to_file(output)
+        .context("Failed to write bindings")?;
     eprintln!("Success [output = {}]", output.display());
 
     Ok(())

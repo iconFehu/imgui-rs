@@ -34,7 +34,7 @@ use bitflags::bitflags;
 bitflags!(
     /// Flags for igBeginDragDropSource(), igAcceptDragDropPayload()
     #[repr(transparent)]
-    pub struct DragDropFlags: u32 {
+    pub struct DragDropFlags: i32 {
         /// By default, a successful call to igBeginDragDropSource opens a tooltip so you can
         /// display a preview or description of the source contents. This flag disable this
         /// behavior.

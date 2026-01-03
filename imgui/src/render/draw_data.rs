@@ -34,6 +34,8 @@ pub struct DrawData {
 
     /// Viewport carrying the DrawData instance, might be of use to the renderer (generally not).
     owner_viewport: *mut sys::ImGuiViewport,
+    /// Optional texture data list for renderer backends with texture support.
+    textures: *mut sys::ImVector_ImTextureDataPtr,
 }
 
 unsafe impl RawCast<sys::ImDrawData> for DrawData {}
@@ -127,6 +129,8 @@ fn test_drawdata_memory_layout() {
     assert_field_offset!(display_pos, DisplayPos);
     assert_field_offset!(display_size, DisplaySize);
     assert_field_offset!(framebuffer_scale, FramebufferScale);
+    assert_field_offset!(owner_viewport, OwnerViewport);
+    assert_field_offset!(textures, Textures);
 }
 
 /// Draw command list
@@ -229,7 +233,9 @@ impl Iterator for DrawCmdIterator<'_> {
         self.iter.next().map(|cmd| {
             let cmd_params = DrawCmdParams {
                 clip_rect: cmd.ClipRect.into(),
-                texture_id: TextureId::from(cmd.TextureId),
+                texture_id: TextureId::from(unsafe {
+                    sys::ImTextureRef_GetTexID(&cmd.TexRef as *const _ as *mut _)
+                }),
                 vtx_offset: cmd.VtxOffset as usize,
                 idx_offset: cmd.IdxOffset as usize,
             };
@@ -419,6 +425,7 @@ fn test_owneddrawdata_from_drawdata() {
         DisplaySize: sys::ImVec2 { x: 789.0, y: 012.0 },
         FramebufferScale: sys::ImVec2 { x: 3.0, y: 7.0 },
         OwnerViewport: unsafe { std::ptr::null_mut::<sys::ImGuiViewport>().offset(123) },
+        Textures: std::ptr::null_mut(),
     };
     let draw_data = unsafe { DrawData::from_raw(&draw_data_raw) };
 
@@ -447,6 +454,7 @@ fn test_owneddrawdata_from_drawdata() {
         draw_data_raw.FramebufferScale,
         owned_draw_data_raw.FramebufferScale
     );
+    assert_eq!(draw_data_raw.Textures, owned_draw_data_raw.Textures);
 
     #[cfg(feature = "docking")]
     assert_eq!(

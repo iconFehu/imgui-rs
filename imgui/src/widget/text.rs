@@ -67,7 +67,7 @@ impl Ui {
     /// See [`Ui::text_link_open_url`] for a text-link which
     /// only returns true, rather than opening the link itself.
     #[doc(alias = "TextLinkOpenURL")]
-    pub fn text_link_open_url(&self, label: impl AsRef<str>, url: impl AsRef<str>) {
+    pub fn text_link_open_url(&self, label: impl AsRef<str>, url: impl AsRef<str>) -> bool {
         let (label, url) = self.scratch_txt_two(label, url);
         unsafe { sys::igTextLinkOpenURL(label, url) }
     }

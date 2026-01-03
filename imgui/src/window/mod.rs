@@ -13,7 +13,7 @@ pub(crate) mod scroll;
 bitflags! {
     /// Window hover check option flags
     #[repr(transparent)]
-    pub struct WindowHoveredFlags: u32 {
+    pub struct WindowHoveredFlags: i32 {
         /// Return true if any child of the window is hovered
         const CHILD_WINDOWS = sys::ImGuiHoveredFlags_ChildWindows;
         /// Test from root window (top-most parent of the current hierarchy)
@@ -32,7 +32,7 @@ bitflags! {
 bitflags! {
     /// Window focus check option flags
     #[repr(transparent)]
-    pub struct WindowFocusedFlags: u32 {
+    pub struct WindowFocusedFlags: i32 {
         /// Return true if any child of the window is focused
         const CHILD_WINDOWS = sys::ImGuiFocusedFlags_ChildWindows;
         /// Test from root window (top-most parent of the current hierarchy)
@@ -47,7 +47,7 @@ bitflags! {
 bitflags! {
     /// Configuration flags for windows
     #[repr(transparent)]
-    pub struct WindowFlags: u32 {
+    pub struct WindowFlags: i32 {
         /// Disable the title bar
         const NO_TITLE_BAR = sys::ImGuiWindowFlags_NoTitleBar;
         /// Disable resizing with the lower-right grip
@@ -146,15 +146,13 @@ impl Ui {
     /// Returns the position of the current window (in screen space)
     #[doc(alias = "GetWindowPos")]
     pub fn window_pos(&self) -> [f32; 2] {
-        let mut out = sys::ImVec2::zero();
-        unsafe { sys::igGetWindowPos(&mut out) };
+        let out = unsafe { sys::igGetWindowPos() };
         out.into()
     }
     /// Returns the size of the current window
     #[doc(alias = "GetWindowPos")]
     pub fn window_size(&self) -> [f32; 2] {
-        let mut out = sys::ImVec2::zero();
-        unsafe { sys::igGetWindowSize(&mut out) };
+        let out = unsafe { sys::igGetWindowSize() };
         out.into()
     }
 }

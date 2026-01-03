@@ -33,7 +33,7 @@ pub enum ComboBoxPreviewMode {
 bitflags!(
 /// Flags for combo boxes
 #[repr(transparent)]
-pub struct ComboBoxFlags: u32 {
+pub struct ComboBoxFlags: i32 {
     /// Align the popup toward the left by default
     const POPUP_ALIGN_LEFT = sys::ImGuiComboFlags_PopupAlignLeft;
     /// Max ~4 items visible.

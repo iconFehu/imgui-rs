@@ -36,7 +36,7 @@ impl Ui {
         let font = fonts
             .get_font(id)
             .expect("Font atlas did not contain the given font");
-        unsafe { sys::igPushFont(font.raw() as *const _ as *mut _) };
+        unsafe { sys::igPushFont(font.raw() as *const _ as *mut _, font.legacy_size) };
         FontStackToken::new(self)
     }
     /// Changes a style color by pushing a change to the color stack.
@@ -453,7 +453,7 @@ impl Ui {
 
 bitflags::bitflags! {
     /// A temporary change in item flags, used in [`Ui::push_item_flag`].
-    pub struct ItemFlag: u32 {
+    pub struct ItemFlag: i32 {
         /// Disable keyboard tabbing. This is a "lighter" version of [`ItemFlag::NO_NAV`].
         const NO_TAB_STOP = sys::ImGuiItemFlags_NoTabStop;
         /// Disable any form of focusing (keyboard/gamepad directional navigation and

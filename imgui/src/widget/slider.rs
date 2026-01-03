@@ -9,7 +9,7 @@ use crate::Ui;
 bitflags!(
     /// Flags for sliders
     #[repr(transparent)]
-    pub struct SliderFlags: u32 {
+    pub struct SliderFlags: i32 {
         /// Clamp value to min/max bounds when input manually with CTRL+Click.
         ///
         /// By default CTRL+click allows going out of bounds.
