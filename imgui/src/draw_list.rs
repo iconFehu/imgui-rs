@@ -26,7 +26,7 @@ use std::marker::PhantomData;
 bitflags!(
     /// Options for some DrawList operations.
     #[repr(C)]
-    pub struct DrawFlags: u32 {
+    pub struct DrawFlags: i32 {
         const CLOSED = sys::ImDrawFlags_Closed;
         const ROUND_CORNERS_TOP_LEFT = sys::ImDrawFlags_RoundCornersTopLeft;
         const ROUND_CORNERS_TOP_RIGHT = sys::ImDrawFlags_RoundCornersTopRight;
@@ -44,7 +44,7 @@ bitflags!(
 bitflags!(
     /// Draw list flags
     #[repr(C)]
-    pub struct DrawListFlags: u32 {
+    pub struct DrawListFlags: i32 {
         /// Enable anti-aliased lines/borders (*2 the number of triangles for 1.0f wide line or lines
         /// thin enough to be drawn using textures, otherwise *3 the number of triangles)
         const ANTI_ALIASED_LINES = sys::ImDrawListFlags_AntiAliasedLines;
@@ -972,12 +972,10 @@ impl<'ui> Image<'ui> {
 
     /// Draw the image on the window.
     pub fn build(self) {
-        use std::os::raw::c_void;
-
         unsafe {
             sys::ImDrawList_AddImage(
                 self.draw_list.draw_list,
-                self.texture_id.id() as *mut c_void,
+                self.texture_id.to_im_texture_ref(),
                 self.p_min.into(),
                 self.p_max.into(),
                 self.uv_min.into(),
@@ -1062,12 +1060,10 @@ impl<'ui> ImageQuad<'ui> {
 
     /// Draw the image on the window.
     pub fn build(self) {
-        use std::os::raw::c_void;
-
         unsafe {
             sys::ImDrawList_AddImageQuad(
                 self.draw_list.draw_list,
-                self.texture_id.id() as *mut c_void,
+                self.texture_id.to_im_texture_ref(),
                 self.p1.into(),
                 self.p2.into(),
                 self.p3.into(),
@@ -1175,12 +1171,10 @@ impl<'ui> ImageRounded<'ui> {
 
     /// Draw the image on the window.
     pub fn build(self) {
-        use std::os::raw::c_void;
-
         unsafe {
             sys::ImDrawList_AddImageRounded(
                 self.draw_list.draw_list,
-                self.texture_id.id() as *mut c_void,
+                self.texture_id.to_im_texture_ref(),
                 self.p_min.into(),
                 self.p_max.into(),
                 self.uv_min.into(),
@@ -1218,6 +1212,7 @@ impl<'ui, F: FnOnce() + 'static> Callback<'ui, F> {
                 self.draw_list.draw_list,
                 Some(Self::run_callback),
                 callback as *mut c_void,
+                0,
             );
         }
     }
