@@ -17,12 +17,27 @@ impl TextureId {
     pub const fn id(self) -> usize {
         self.0
     }
+
+    #[inline]
+    pub(crate) fn to_im_texture_ref(self) -> sys::ImTextureRef {
+        sys::ImTextureRef {
+            _TexData: std::ptr::null_mut(),
+            _TexID: self.0 as sys::ImTextureID,
+        }
+    }
 }
 
 impl From<usize> for TextureId {
     #[inline]
     fn from(id: usize) -> Self {
         TextureId(id)
+    }
+}
+
+impl From<u64> for TextureId {
+    #[inline]
+    fn from(id: u64) -> Self {
+        TextureId(id as usize)
     }
 }
 

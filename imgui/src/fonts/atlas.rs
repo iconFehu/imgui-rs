@@ -1,7 +1,6 @@
 use bitflags::bitflags;
 use std::f32;
-use std::os::raw::{c_int, c_uchar, c_void};
-use std::ptr;
+use std::os::raw::{c_char, c_int, c_uchar, c_uint, c_void};
 use std::rc::Rc;
 use std::slice;
 
@@ -9,12 +8,11 @@ use crate::fonts::font::Font;
 use crate::fonts::glyph_ranges::FontGlyphRanges;
 use crate::internal::{ImVector, RawCast};
 use crate::sys;
-use crate::TextureId;
 
 bitflags! {
     /// Font atlas configuration flags
     #[repr(transparent)]
-    pub struct FontAtlasFlags: u32 {
+    pub struct FontAtlasFlags: i32 {
         /// Don't round the height to next power of two
         const NO_POWER_OF_TWO_HEIGHT = sys::ImFontAtlasFlags_NoPowerOfTwoHeight;
         /// Don't build software mouse cursors into the atlas
@@ -33,37 +31,45 @@ pub struct FontId(pub(crate) *const Font);
 pub struct FontAtlas {
     /// Configuration flags
     pub flags: FontAtlasFlags,
-    /// Texture identifier
-    pub tex_id: TextureId,
-    /// Texture width desired by user before building the atlas.
-    ///
-    /// Must be a power-of-two. If you have many glyphs and your graphics API has texture size
-    /// restrictions, you may want to increase texture width to decrease the height.
-    pub tex_desired_width: i32,
+    /// Texture format desired by user before building the atlas.
+    pub tex_desired_format: sys::ImTextureFormat,
     /// Padding between glyphs within texture in pixels.
     ///
     /// Defaults to 1. If your rendering method doesn't rely on bilinear filtering, you may set
     /// this to 0.
     pub tex_glyph_padding: i32,
+    /// Minimum texture width before building the atlas.
+    pub tex_min_width: i32,
+    /// Minimum texture height before building the atlas.
+    pub tex_min_height: i32,
+    /// Maximum texture width allowed by renderer (if any).
+    pub tex_max_width: i32,
+    /// Maximum texture height allowed by renderer (if any).
+    pub tex_max_height: i32,
 
-    locked: bool,
     user_data: *mut c_void,
-    text_ready: bool,
+    pub tex_ref: sys::ImTextureRef,
+    tex_data: *mut sys::ImTextureData,
+    tex_list: sys::ImVector_ImTextureDataPtr,
+    locked: bool,
+    renderer_has_textures: bool,
+    tex_is_built: bool,
     tex_pixels_use_colors: bool,
-    tex_pixels_alpha8: *mut u8,
-    tex_pixels_rgba32: *mut u32,
-    tex_width: i32,
-    tex_height: i32,
-    tex_uv_scale: [f32; 2],
-    tex_uv_white_pixel: [f32; 2],
+    tex_uv_scale: sys::ImVec2,
+    tex_uv_white_pixel: sys::ImVec2,
     fonts: ImVector<*mut Font>,
-    custom_rects: sys::ImVector_ImFontAtlasCustomRect,
-    config_data: sys::ImVector_ImFontConfig,
-    tex_uv_lines: [[f32; 4]; 64],
-    font_builder_io: *const sys::ImFontBuilderIO,
-    font_builder_flags: i32,
-    pack_id_mouse_cursors: i32,
-    pack_id_lines: i32,
+    sources: sys::ImVector_ImFontConfig,
+    tex_uv_lines: [sys::ImVec4; 33],
+    tex_next_unique_id: i32,
+    font_next_unique_id: i32,
+    draw_list_shared_datas: sys::ImVector_ImDrawListSharedDataPtr,
+    builder: *mut sys::ImFontAtlasBuilder,
+    font_loader: *const sys::ImFontLoader,
+    font_loader_name: *const c_char,
+    font_loader_data: *mut c_void,
+    font_loader_flags: c_uint,
+    ref_count: i32,
+    owner_context: *mut sys::ImGuiContext,
 }
 
 unsafe impl RawCast<sys::ImFontAtlas> for FontAtlas {}
@@ -137,63 +143,43 @@ impl FontAtlas {
     /// Returns true if the font atlas has been built
     #[doc(alias = "IsBuilt")]
     pub fn is_built(&self) -> bool {
-        unsafe { sys::ImFontAtlas_IsBuilt(self.raw() as *const sys::ImFontAtlas as *mut _) }
+        self.tex_is_built && !self.fonts.as_slice().is_empty()
     }
     /// Builds a 1 byte per-pixel font atlas texture
     #[doc(alias = "GetTextDataAsAlpha8")]
     pub fn build_alpha8_texture(&mut self) -> FontAtlasTexture<'_> {
-        let mut pixels: *mut c_uchar = ptr::null_mut();
-        let mut width: c_int = 0;
-        let mut height: c_int = 0;
-        let mut bytes_per_pixel: c_int = 0;
-        unsafe {
-            sys::ImFontAtlas_GetTexDataAsAlpha8(
-                self.raw_mut(),
-                &mut pixels,
-                &mut width,
-                &mut height,
-                &mut bytes_per_pixel,
-            );
-            assert!(width >= 0, "font texture width must be positive");
-            assert!(height >= 0, "font texture height must be positive");
-            assert!(
-                bytes_per_pixel >= 0,
-                "font texture bytes per pixel must be positive"
-            );
-            let height = height as usize;
-            // Check multiplication to avoid constructing an invalid slice in case of overflow
-            let pitch = width
-                .checked_mul(bytes_per_pixel)
-                .expect("Overflow in font texture pitch calculation")
-                as usize;
-            FontAtlasTexture {
-                width: width as u32,
-                height: height as u32,
-                data: slice::from_raw_parts(pixels, pitch * height),
-            }
-        }
+        self.build_texture_with_bytes_per_pixel(1)
     }
     /// Builds a 4 byte per-pixel font atlas texture
     #[doc(alias = "GetTextDataAsRGBA32")]
     pub fn build_rgba32_texture(&mut self) -> FontAtlasTexture<'_> {
-        let mut pixels: *mut c_uchar = ptr::null_mut();
-        let mut width: c_int = 0;
-        let mut height: c_int = 0;
-        let mut bytes_per_pixel: c_int = 0;
+        self.build_texture_with_bytes_per_pixel(4)
+    }
+
+    fn build_texture_with_bytes_per_pixel(&self, expected_bpp: c_int) -> FontAtlasTexture<'_> {
+        let tex_data = self.tex_data;
+        assert!(
+            !tex_data.is_null(),
+            "font texture data is not available yet"
+        );
         unsafe {
-            sys::ImFontAtlas_GetTexDataAsRGBA32(
-                self.raw_mut(),
-                &mut pixels,
-                &mut width,
-                &mut height,
-                &mut bytes_per_pixel,
-            );
+            let tex_data = &*tex_data;
+            let width = tex_data.Width;
+            let height = tex_data.Height;
+            let bytes_per_pixel = tex_data.BytesPerPixel;
+            let pixels = tex_data.Pixels as *const c_uchar;
+
             assert!(width >= 0, "font texture width must be positive");
             assert!(height >= 0, "font texture height must be positive");
             assert!(
                 bytes_per_pixel >= 0,
                 "font texture bytes per pixel must be positive"
             );
+            assert_eq!(
+                bytes_per_pixel, expected_bpp,
+                "unexpected font texture format"
+            );
+
             let height = height as usize;
             // Check multiplication to avoid constructing an invalid slice in case of overflow
             let pitch = width
@@ -260,24 +246,36 @@ fn test_font_atlas_memory_layout() {
             );
         };
     }
-    assert_field_offset!(locked, Locked);
     assert_field_offset!(flags, Flags);
-    assert_field_offset!(tex_id, TexID);
-    assert_field_offset!(tex_desired_width, TexDesiredWidth);
+    assert_field_offset!(tex_desired_format, TexDesiredFormat);
     assert_field_offset!(tex_glyph_padding, TexGlyphPadding);
+    assert_field_offset!(tex_min_width, TexMinWidth);
+    assert_field_offset!(tex_min_height, TexMinHeight);
+    assert_field_offset!(tex_max_width, TexMaxWidth);
+    assert_field_offset!(tex_max_height, TexMaxHeight);
+    assert_field_offset!(user_data, UserData);
+    assert_field_offset!(tex_ref, TexRef);
+    assert_field_offset!(tex_data, TexData);
+    assert_field_offset!(tex_list, TexList);
+    assert_field_offset!(locked, Locked);
+    assert_field_offset!(renderer_has_textures, RendererHasTextures);
+    assert_field_offset!(tex_is_built, TexIsBuilt);
     assert_field_offset!(tex_pixels_use_colors, TexPixelsUseColors);
-    assert_field_offset!(tex_pixels_alpha8, TexPixelsAlpha8);
-    assert_field_offset!(tex_pixels_rgba32, TexPixelsRGBA32);
-    assert_field_offset!(tex_width, TexWidth);
-    assert_field_offset!(tex_height, TexHeight);
     assert_field_offset!(tex_uv_scale, TexUvScale);
     assert_field_offset!(tex_uv_white_pixel, TexUvWhitePixel);
     assert_field_offset!(fonts, Fonts);
-    assert_field_offset!(custom_rects, CustomRects);
-    assert_field_offset!(config_data, ConfigData);
+    assert_field_offset!(sources, Sources);
     assert_field_offset!(tex_uv_lines, TexUvLines);
-    assert_field_offset!(pack_id_mouse_cursors, PackIdMouseCursors);
-    assert_field_offset!(pack_id_lines, PackIdLines);
+    assert_field_offset!(tex_next_unique_id, TexNextUniqueID);
+    assert_field_offset!(font_next_unique_id, FontNextUniqueID);
+    assert_field_offset!(draw_list_shared_datas, DrawListSharedDatas);
+    assert_field_offset!(builder, Builder);
+    assert_field_offset!(font_loader, FontLoader);
+    assert_field_offset!(font_loader_name, FontLoaderName);
+    assert_field_offset!(font_loader_data, FontLoaderData);
+    assert_field_offset!(font_loader_flags, FontLoaderFlags);
+    assert_field_offset!(ref_count, RefCount);
+    assert_field_offset!(owner_context, OwnerContext);
 }
 
 /// A source for binary font data
@@ -299,23 +297,27 @@ pub struct FontConfig {
     /// Size in pixels for the rasterizer
     pub size_pixels: f32,
     /// Horizontal oversampling
-    pub oversample_h: i32,
+    pub oversample_h: i8,
     /// Vertical oversampling
-    pub oversample_v: i32,
+    pub oversample_v: i8,
     /// Align every glyph to pixel boundary
     pub pixel_snap_h: bool,
-    /// Extra spacing (in pixels) between glyphs
-    pub glyph_extra_spacing: [f32; 2],
     /// Offset for all glyphs in this font
     pub glyph_offset: [f32; 2],
     /// Unicode ranges to use from this font
     pub glyph_ranges: FontGlyphRanges,
+    /// Unicode ranges to exclude from this font
+    pub glyph_exclude_ranges: Option<FontGlyphRanges>,
     /// Minimum advance_x for glyphs
     pub glyph_min_advance_x: f32,
     /// Maximum advance_x for glyphs
     pub glyph_max_advance_x: f32,
-    /// Settings for a custom font rasterizer if used
-    pub font_builder_flags: u32,
+    /// Extra advance between glyphs
+    pub glyph_extra_advance_x: f32,
+    /// Font index in the font file
+    pub font_no: u32,
+    /// Settings for a custom font loader if used
+    pub font_loader_flags: u32,
     /// Brighten (>1.0) or darken (<1.0) font output
     pub rasterizer_multiply: f32,
     /// DPI scale for rasterization, not altering other font metrics:
@@ -323,6 +325,10 @@ pub struct FontConfig {
     /// IMPORTANT: If you increase this it is expected that you increase font scale
     /// accordingly, otherwise quality may look lowered.
     pub rasterizer_density: f32,
+    /// Extra size scaling applied after rasterization
+    pub extra_size_scale: f32,
+    /// Font flags
+    pub flags: sys::ImFontFlags,
     /// Explicitly specify the ellipsis character.
     ///
     /// With multiple font sources the first specified ellipsis is used.
@@ -332,20 +338,28 @@ pub struct FontConfig {
 
 impl Default for FontConfig {
     fn default() -> FontConfig {
+        let sys_font_config = sys_font_config_default();
         FontConfig {
-            size_pixels: 0.0,
-            oversample_h: 2,
-            oversample_v: 1,
-            pixel_snap_h: false,
-            glyph_extra_spacing: [0.0, 0.0],
-            glyph_offset: [0.0, 0.0],
+            size_pixels: sys_font_config.SizePixels,
+            oversample_h: sys_font_config.OversampleH,
+            oversample_v: sys_font_config.OversampleV,
+            pixel_snap_h: sys_font_config.PixelSnapH,
+            glyph_offset: [sys_font_config.GlyphOffset.x, sys_font_config.GlyphOffset.y],
             glyph_ranges: FontGlyphRanges::default(),
-            glyph_min_advance_x: 0.0,
-            glyph_max_advance_x: f32::MAX,
-            font_builder_flags: 0,
-            rasterizer_multiply: 1.0,
-            rasterizer_density: 1.0,
-            ellipsis_char: None,
+            glyph_exclude_ranges: None,
+            glyph_min_advance_x: sys_font_config.GlyphMinAdvanceX,
+            glyph_max_advance_x: sys_font_config.GlyphMaxAdvanceX,
+            glyph_extra_advance_x: sys_font_config.GlyphExtraAdvanceX,
+            font_no: sys_font_config.FontNo,
+            font_loader_flags: sys_font_config.FontLoaderFlags,
+            rasterizer_multiply: sys_font_config.RasterizerMultiply,
+            rasterizer_density: sys_font_config.RasterizerDensity,
+            extra_size_scale: sys_font_config.ExtraSizeScale,
+            flags: sys_font_config.Flags,
+            ellipsis_char: match sys_font_config.EllipsisChar {
+                0 => None,
+                value => std::char::from_u32(value as u32),
+            },
             name: None,
         }
     }
@@ -357,16 +371,22 @@ impl FontConfig {
         raw.OversampleH = self.oversample_h;
         raw.OversampleV = self.oversample_v;
         raw.PixelSnapH = self.pixel_snap_h;
-        raw.GlyphExtraSpacing = self.glyph_extra_spacing.into();
         raw.GlyphOffset = self.glyph_offset.into();
         raw.GlyphRanges = unsafe { self.glyph_ranges.to_ptr(atlas) };
+        raw.GlyphExcludeRanges = match self.glyph_exclude_ranges.as_ref() {
+            Some(ranges) => unsafe { ranges.to_ptr(atlas) },
+            None => std::ptr::null(),
+        };
         raw.GlyphMinAdvanceX = self.glyph_min_advance_x;
         raw.GlyphMaxAdvanceX = self.glyph_max_advance_x;
-        raw.FontBuilderFlags = self.font_builder_flags;
+        raw.GlyphExtraAdvanceX = self.glyph_extra_advance_x;
+        raw.FontNo = self.font_no;
+        raw.FontLoaderFlags = self.font_loader_flags;
         raw.RasterizerMultiply = self.rasterizer_multiply;
-        raw.RasterizerMultiply = self.rasterizer_density;
-        // char is used as "unset" for EllipsisChar
-        raw.EllipsisChar = self.ellipsis_char.map(|c| c as u32).unwrap_or(!0);
+        raw.RasterizerDensity = self.rasterizer_density;
+        raw.ExtraSizeScale = self.extra_size_scale;
+        raw.Flags = self.flags;
+        raw.EllipsisChar = self.ellipsis_char.unwrap_or('\0') as sys::ImWchar;
         if let Some(name) = self.name.as_ref() {
             let bytes = name.as_bytes();
             let mut len = bytes.len().min(raw.Name.len() - 1);
@@ -398,14 +418,6 @@ fn test_font_config_default() {
     assert_eq!(font_config.oversample_h, sys_font_config.OversampleH);
     assert_eq!(font_config.oversample_v, sys_font_config.OversampleV);
     assert_eq!(font_config.pixel_snap_h, sys_font_config.PixelSnapH);
-    assert_eq!(
-        font_config.glyph_extra_spacing[0],
-        sys_font_config.GlyphExtraSpacing.x
-    );
-    assert_eq!(
-        font_config.glyph_extra_spacing[1],
-        sys_font_config.GlyphExtraSpacing.y
-    );
     assert_eq!(font_config.glyph_offset[0], sys_font_config.GlyphOffset.x);
     assert_eq!(font_config.glyph_offset[1], sys_font_config.GlyphOffset.y);
     assert_eq!(
@@ -417,8 +429,13 @@ fn test_font_config_default() {
         sys_font_config.GlyphMaxAdvanceX
     );
     assert_eq!(
-        font_config.font_builder_flags,
-        sys_font_config.FontBuilderFlags
+        font_config.glyph_extra_advance_x,
+        sys_font_config.GlyphExtraAdvanceX
+    );
+    assert_eq!(font_config.font_no, sys_font_config.FontNo);
+    assert_eq!(
+        font_config.font_loader_flags,
+        sys_font_config.FontLoaderFlags
     );
     assert_eq!(
         font_config.rasterizer_multiply,
@@ -477,10 +494,7 @@ impl SharedFontAtlas {
 impl Drop for SharedFontAtlas {
     #[doc(alias = "ImFontAtlas::Destory")]
     fn drop(&mut self) {
-        // if we're about to drop the last one...
-        if Rc::strong_count(&self.0) == 1 {
-            unsafe { sys::ImFontAtlas_destroy(*self.0) };
-        }
+        // ImGui owns shared font atlases and releases them when the last context shuts down.
     }
 }
 
