@@ -20,7 +20,7 @@ bitflags! {
     /// Note: [`HoveredFlags::empty`] will return true in the above functions
     /// if directly over the item/window, not obstructed by another window, not obstructed by an active popup or modal blocking inputs under them.
     #[repr(transparent)]
-    pub struct HoveredFlags: u32 {
+    pub struct HoveredFlags: i32 {
         /// [`Ui::is_item_hovered`] only: Return true if any children of the window is hovered
         const CHILD_WINDOWS = sys::ImGuiHoveredFlags_ChildWindows;
         /// [`Ui::is_item_hovered`] only: Test from root window (top most parent of the current hierarchy)
@@ -167,23 +167,17 @@ impl Ui {
     /// Returns the upper-left bounding rectangle of the last item (in screen coordinates)
     #[doc(alias = "GetItemRectMin")]
     pub fn item_rect_min(&self) -> [f32; 2] {
-        let mut out = sys::ImVec2::zero();
-        unsafe { sys::igGetItemRectMin(&mut out) }
-        out.into()
+        unsafe { sys::igGetItemRectMin() }.into()
     }
     /// Returns the lower-right bounding rectangle of the last item (in screen coordinates)
     #[doc(alias = "GetItemRectMax")]
     pub fn item_rect_max(&self) -> [f32; 2] {
-        let mut out = sys::ImVec2::zero();
-        unsafe { sys::igGetItemRectMax(&mut out) }
-        out.into()
+        unsafe { sys::igGetItemRectMax() }.into()
     }
     /// Returns the size of the last item
     #[doc(alias = "GetItemRectSize")]
     pub fn item_rect_size(&self) -> [f32; 2] {
-        let mut out = sys::ImVec2::zero();
-        unsafe { sys::igGetItemRectSize(&mut out) }
-        out.into()
+        unsafe { sys::igGetItemRectSize() }.into()
     }
     /// Allows the next item to be overlapped by a subsequent item.
     #[doc(alias = "SetNextItemAllowOverlap")]
