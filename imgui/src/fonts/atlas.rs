@@ -302,6 +302,8 @@ pub struct FontConfig {
     pub oversample_v: i8,
     /// Align every glyph to pixel boundary
     pub pixel_snap_h: bool,
+    /// Align every glyph to pixel boundary (vertical)
+    pub pixel_snap_v: bool,
     /// Offset for all glyphs in this font
     pub glyph_offset: [f32; 2],
     /// Unicode ranges to use from this font
@@ -325,8 +327,6 @@ pub struct FontConfig {
     /// IMPORTANT: If you increase this it is expected that you increase font scale
     /// accordingly, otherwise quality may look lowered.
     pub rasterizer_density: f32,
-    /// Extra size scaling applied after rasterization
-    pub extra_size_scale: f32,
     /// Font flags
     pub flags: sys::ImFontFlags,
     /// Explicitly specify the ellipsis character.
@@ -344,6 +344,7 @@ impl Default for FontConfig {
             oversample_h: sys_font_config.OversampleH,
             oversample_v: sys_font_config.OversampleV,
             pixel_snap_h: sys_font_config.PixelSnapH,
+            pixel_snap_v: sys_font_config.PixelSnapV,
             glyph_offset: [sys_font_config.GlyphOffset.x, sys_font_config.GlyphOffset.y],
             glyph_ranges: FontGlyphRanges::default(),
             glyph_exclude_ranges: None,
@@ -354,7 +355,6 @@ impl Default for FontConfig {
             font_loader_flags: sys_font_config.FontLoaderFlags,
             rasterizer_multiply: sys_font_config.RasterizerMultiply,
             rasterizer_density: sys_font_config.RasterizerDensity,
-            extra_size_scale: sys_font_config.ExtraSizeScale,
             flags: sys_font_config.Flags,
             ellipsis_char: match sys_font_config.EllipsisChar {
                 0 => None,
@@ -371,6 +371,7 @@ impl FontConfig {
         raw.OversampleH = self.oversample_h;
         raw.OversampleV = self.oversample_v;
         raw.PixelSnapH = self.pixel_snap_h;
+        raw.PixelSnapV = self.pixel_snap_v;
         raw.GlyphOffset = self.glyph_offset.into();
         raw.GlyphRanges = unsafe { self.glyph_ranges.to_ptr(atlas) };
         raw.GlyphExcludeRanges = match self.glyph_exclude_ranges.as_ref() {
@@ -384,7 +385,6 @@ impl FontConfig {
         raw.FontLoaderFlags = self.font_loader_flags;
         raw.RasterizerMultiply = self.rasterizer_multiply;
         raw.RasterizerDensity = self.rasterizer_density;
-        raw.ExtraSizeScale = self.extra_size_scale;
         raw.Flags = self.flags;
         raw.EllipsisChar = self.ellipsis_char.unwrap_or('\0') as sys::ImWchar;
         if let Some(name) = self.name.as_ref() {
@@ -418,6 +418,7 @@ fn test_font_config_default() {
     assert_eq!(font_config.oversample_h, sys_font_config.OversampleH);
     assert_eq!(font_config.oversample_v, sys_font_config.OversampleV);
     assert_eq!(font_config.pixel_snap_h, sys_font_config.PixelSnapH);
+    assert_eq!(font_config.pixel_snap_v, sys_font_config.PixelSnapV);
     assert_eq!(font_config.glyph_offset[0], sys_font_config.GlyphOffset.x);
     assert_eq!(font_config.glyph_offset[1], sys_font_config.GlyphOffset.y);
     assert_eq!(
