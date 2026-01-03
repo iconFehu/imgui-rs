@@ -138,8 +138,6 @@ pub struct Style {
     pub drag_drop_target_border_size: f32,
     /// Drag-and-drop target padding.
     pub drag_drop_target_padding: f32,
-    /// Size of color marker for color picker.
-    pub color_marker_size: f32,
     /// Side of the color button in color editor widgets (left/right).
     ///
     /// Defaults to [`Direction::Right`].
@@ -822,7 +820,6 @@ mod tests {
         assert_field_offset!(drag_drop_target_rounding, DragDropTargetRounding);
         assert_field_offset!(drag_drop_target_border_size, DragDropTargetBorderSize);
         assert_field_offset!(drag_drop_target_padding, DragDropTargetPadding);
-        assert_field_offset!(color_marker_size, ColorMarkerSize);
         assert_field_offset!(color_button_position, ColorButtonPosition);
         assert_field_offset!(button_text_align, ButtonTextAlign);
         assert_field_offset!(selectable_text_align, SelectableTextAlign);
