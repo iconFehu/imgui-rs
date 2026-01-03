@@ -302,7 +302,6 @@ pub const ImGuiItemFlags_NoNavDefaultFocus: ImGuiItemFlags_ = 4;
 pub const ImGuiItemFlags_ButtonRepeat: ImGuiItemFlags_ = 8;
 pub const ImGuiItemFlags_AutoClosePopups: ImGuiItemFlags_ = 16;
 pub const ImGuiItemFlags_AllowDuplicateId: ImGuiItemFlags_ = 32;
-pub const ImGuiItemFlags_Disabled: ImGuiItemFlags_ = 64;
 pub type ImGuiItemFlags_ = ::core::ffi::c_int;
 pub const ImGuiInputTextFlags_None: ImGuiInputTextFlags_ = 0;
 pub const ImGuiInputTextFlags_CharsDecimal: ImGuiInputTextFlags_ = 1;
@@ -795,11 +794,10 @@ pub const ImGuiColorEditFlags_NoLabel: ImGuiColorEditFlags_ = 128;
 pub const ImGuiColorEditFlags_NoSidePreview: ImGuiColorEditFlags_ = 256;
 pub const ImGuiColorEditFlags_NoDragDrop: ImGuiColorEditFlags_ = 512;
 pub const ImGuiColorEditFlags_NoBorder: ImGuiColorEditFlags_ = 1024;
-pub const ImGuiColorEditFlags_NoColorMarkers: ImGuiColorEditFlags_ = 2048;
-pub const ImGuiColorEditFlags_AlphaOpaque: ImGuiColorEditFlags_ = 4096;
-pub const ImGuiColorEditFlags_AlphaNoBg: ImGuiColorEditFlags_ = 8192;
-pub const ImGuiColorEditFlags_AlphaPreviewHalf: ImGuiColorEditFlags_ = 16384;
-pub const ImGuiColorEditFlags_AlphaBar: ImGuiColorEditFlags_ = 262144;
+pub const ImGuiColorEditFlags_AlphaOpaque: ImGuiColorEditFlags_ = 2048;
+pub const ImGuiColorEditFlags_AlphaNoBg: ImGuiColorEditFlags_ = 4096;
+pub const ImGuiColorEditFlags_AlphaPreviewHalf: ImGuiColorEditFlags_ = 8192;
+pub const ImGuiColorEditFlags_AlphaBar: ImGuiColorEditFlags_ = 65536;
 pub const ImGuiColorEditFlags_HDR: ImGuiColorEditFlags_ = 524288;
 pub const ImGuiColorEditFlags_DisplayRGB: ImGuiColorEditFlags_ = 1048576;
 pub const ImGuiColorEditFlags_DisplayHSV: ImGuiColorEditFlags_ = 2097152;
@@ -811,7 +809,7 @@ pub const ImGuiColorEditFlags_PickerHueWheel: ImGuiColorEditFlags_ = 67108864;
 pub const ImGuiColorEditFlags_InputRGB: ImGuiColorEditFlags_ = 134217728;
 pub const ImGuiColorEditFlags_InputHSV: ImGuiColorEditFlags_ = 268435456;
 pub const ImGuiColorEditFlags_DefaultOptions_: ImGuiColorEditFlags_ = 177209344;
-pub const ImGuiColorEditFlags_AlphaMask_: ImGuiColorEditFlags_ = 28674;
+pub const ImGuiColorEditFlags_AlphaMask_: ImGuiColorEditFlags_ = 14338;
 pub const ImGuiColorEditFlags_DisplayMask_: ImGuiColorEditFlags_ = 7340032;
 pub const ImGuiColorEditFlags_DataTypeMask_: ImGuiColorEditFlags_ = 25165824;
 pub const ImGuiColorEditFlags_PickerMask_: ImGuiColorEditFlags_ = 100663296;
@@ -825,7 +823,6 @@ pub const ImGuiSliderFlags_WrapAround: ImGuiSliderFlags_ = 256;
 pub const ImGuiSliderFlags_ClampOnInput: ImGuiSliderFlags_ = 512;
 pub const ImGuiSliderFlags_ClampZeroRange: ImGuiSliderFlags_ = 1024;
 pub const ImGuiSliderFlags_NoSpeedTweaks: ImGuiSliderFlags_ = 2048;
-pub const ImGuiSliderFlags_ColorMarkers: ImGuiSliderFlags_ = 4096;
 pub const ImGuiSliderFlags_AlwaysClamp: ImGuiSliderFlags_ = 1536;
 pub const ImGuiSliderFlags_InvalidMask_: ImGuiSliderFlags_ = 1879048207;
 pub type ImGuiSliderFlags_ = ::core::ffi::c_int;
@@ -1018,7 +1015,6 @@ pub struct ImGuiStyle {
     pub DragDropTargetRounding: f32,
     pub DragDropTargetBorderSize: f32,
     pub DragDropTargetPadding: f32,
-    pub ColorMarkerSize: f32,
     pub ColorButtonPosition: ImGuiDir,
     pub ButtonTextAlign: ImVec2_c,
     pub SelectableTextAlign: ImVec2_c,
@@ -1942,6 +1938,7 @@ pub struct ImFontConfig {
     pub FontDataOwnedByAtlas: bool,
     pub MergeMode: bool,
     pub PixelSnapH: bool,
+    pub PixelSnapV: bool,
     pub OversampleH: ImS8,
     pub OversampleV: ImS8,
     pub EllipsisChar: ImWchar,
@@ -1956,7 +1953,6 @@ pub struct ImFontConfig {
     pub FontLoaderFlags: ::core::ffi::c_uint,
     pub RasterizerMultiply: f32,
     pub RasterizerDensity: f32,
-    pub ExtraSizeScale: f32,
     pub Flags: ImFontFlags,
     pub DstFont: *mut ImFont,
     pub FontLoader: *const ImFontLoader,
@@ -4218,9 +4214,6 @@ unsafe extern "C" {
     pub fn igGetItemRectSize() -> ImVec2_c;
 }
 unsafe extern "C" {
-    pub fn igGetItemFlags() -> ImGuiItemFlags;
-}
-unsafe extern "C" {
     pub fn igGetMainViewport() -> *mut ImGuiViewport;
 }
 unsafe extern "C" {
@@ -5535,18 +5528,6 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn ImFontAtlas_AddFontDefault(
-        self_: *mut ImFontAtlas,
-        font_cfg: *const ImFontConfig,
-    ) -> *mut ImFont;
-}
-unsafe extern "C" {
-    pub fn ImFontAtlas_AddFontDefaultVector(
-        self_: *mut ImFontAtlas,
-        font_cfg: *const ImFontConfig,
-    ) -> *mut ImFont;
-}
-unsafe extern "C" {
-    pub fn ImFontAtlas_AddFontDefaultBitmap(
         self_: *mut ImFontAtlas,
         font_cfg: *const ImFontConfig,
     ) -> *mut ImFont;
