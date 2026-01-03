@@ -57,12 +57,7 @@ impl FontGlyphRanges {
     /// ======
     ///
     /// This function will panic if the given slice is not a valid font range.
-    // TODO(thom): This takes `u32` for now, since I believe it's fine for it to
-    // contain surrogates? (It seems plausible that font data can describe what
-    // to show for unpaired surrogates) Would be nice to be sure, if so, this
-    // should accept `char` (we'd still have to check that the range doesn't
-    // fully contain the surrogate range though)
-    pub fn from_slice(slice: &'static [u32]) -> FontGlyphRanges {
+    pub fn from_slice(slice: &'static [u16]) -> FontGlyphRanges {
         assert_eq!(
             slice.len() % 2,
             1,
@@ -82,9 +77,8 @@ impl FontGlyphRanges {
                 i
             );
             assert!(
-                glyph <= core::char::MAX as u32,
-                "A glyph in a range cannot exceed the maximum codepoint. \
-                 (Glyph is {:#x} at index {})",
+                glyph <= u16::MAX,
+                "A glyph in a range cannot exceed the maximum codepoint. (Glyph is {:#x} at index {})",
                 glyph,
                 i,
             );
@@ -126,7 +120,7 @@ impl FontGlyphRanges {
     /// # Safety
     ///
     /// It is up to the caller to guarantee the slice contents are valid.
-    pub unsafe fn from_slice_unchecked(slice: &'static [u32]) -> FontGlyphRanges {
+    pub unsafe fn from_slice_unchecked(slice: &'static [u16]) -> FontGlyphRanges {
         FontGlyphRanges::from_ptr(slice.as_ptr())
     }
 
@@ -138,22 +132,20 @@ impl FontGlyphRanges {
     ///
     /// It is up to the caller to guarantee the pointer is not null, remains valid forever, and
     /// points to valid data.
-    pub unsafe fn from_ptr(ptr: *const u32) -> FontGlyphRanges {
+    pub unsafe fn from_ptr(ptr: *const u16) -> FontGlyphRanges {
         FontGlyphRanges(FontGlyphRangeData::Custom(ptr))
     }
 
     pub(crate) unsafe fn to_ptr(&self, atlas: *mut sys::ImFontAtlas) -> *const sys::ImWchar {
         match self.0 {
-            FontGlyphRangeData::ChineseFull => sys::ImFontAtlas_GetGlyphRangesChineseFull(atlas),
-            FontGlyphRangeData::ChineseSimplifiedCommon => {
-                sys::ImFontAtlas_GetGlyphRangesChineseSimplifiedCommon(atlas)
-            }
-            FontGlyphRangeData::Cyrillic => sys::ImFontAtlas_GetGlyphRangesCyrillic(atlas),
             FontGlyphRangeData::Default => sys::ImFontAtlas_GetGlyphRangesDefault(atlas),
-            FontGlyphRangeData::Japanese => sys::ImFontAtlas_GetGlyphRangesJapanese(atlas),
-            FontGlyphRangeData::Korean => sys::ImFontAtlas_GetGlyphRangesKorean(atlas),
-            FontGlyphRangeData::Thai => sys::ImFontAtlas_GetGlyphRangesThai(atlas),
-            FontGlyphRangeData::Vietnamese => sys::ImFontAtlas_GetGlyphRangesVietnamese(atlas),
+            FontGlyphRangeData::ChineseFull
+            | FontGlyphRangeData::ChineseSimplifiedCommon
+            | FontGlyphRangeData::Cyrillic
+            | FontGlyphRangeData::Japanese
+            | FontGlyphRangeData::Korean
+            | FontGlyphRangeData::Thai
+            | FontGlyphRangeData::Vietnamese => sys::ImFontAtlas_GetGlyphRangesDefault(atlas),
             FontGlyphRangeData::Custom(ptr) => ptr,
         }
     }
