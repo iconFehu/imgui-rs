@@ -666,7 +666,7 @@ impl Ui {
     /// Gets the flags on the current column in the current table.
     pub fn table_column_flags(&self) -> TableColumnFlags {
         unsafe {
-            TableColumnFlags::from_bits(sys::igTableGetColumnFlags(-1) as u32)
+            TableColumnFlags::from_bits(sys::igTableGetColumnFlags(-1))
                 .expect("bad column flags")
         }
     }
@@ -676,7 +676,7 @@ impl Ui {
     /// [table_column_flags](Self::table_column_flags).
     pub fn table_column_flags_with_column(&self, column_n: usize) -> TableColumnFlags {
         unsafe {
-            TableColumnFlags::from_bits(sys::igTableGetColumnFlags(column_n as i32) as u32)
+            TableColumnFlags::from_bits(sys::igTableGetColumnFlags(column_n as i32))
                 .expect("bad column flags")
         }
     }

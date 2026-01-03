@@ -166,6 +166,12 @@ pub struct Style {
     ///
     /// Also applies to popups/tooltips in addition to regular windows.
     pub display_safe_area_padding: [f32; 2],
+    /// Show close buttons on docking node tabs.
+    #[cfg(feature = "docking")]
+    pub docking_node_has_close_button: bool,
+    /// Thickness of docking separator.
+    #[cfg(feature = "docking")]
+    pub docking_separator_size: f32,
     /// Scale software-rendered mouse cursor.
     ///
     /// May be removed later.
@@ -828,6 +834,10 @@ mod tests {
         assert_field_offset!(separator_text_padding, SeparatorTextPadding);
         assert_field_offset!(display_window_padding, DisplayWindowPadding);
         assert_field_offset!(display_safe_area_padding, DisplaySafeAreaPadding);
+        #[cfg(feature = "docking")]
+        assert_field_offset!(docking_node_has_close_button, DockingNodeHasCloseButton);
+        #[cfg(feature = "docking")]
+        assert_field_offset!(docking_separator_size, DockingSeparatorSize);
         assert_field_offset!(mouse_cursor_scale, MouseCursorScale);
         assert_field_offset!(anti_aliased_lines, AntiAliasedLines);
         assert_field_offset!(anti_aliased_lines_use_tex, AntiAliasedLinesUseTex);

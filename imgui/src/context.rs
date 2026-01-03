@@ -646,15 +646,18 @@ impl Context {
     }
     /// Returns an iterator containing every [`Viewport`](crate::Viewport) that currently exists.
     pub fn viewports(&self) -> impl Iterator<Item = &crate::Viewport> {
-        let slice = self.platform_io().viewports.as_slice();
+        let viewports = &self.platform_io().viewports;
+        let slice = unsafe { std::slice::from_raw_parts(viewports.Data, viewports.Size as usize) };
         // safe because &self ensures shared ownership
-        unsafe { slice.iter().map(|ptr| &**ptr) }
+        unsafe { slice.iter().map(|ptr| &*(*ptr as *const crate::Viewport)) }
     }
     /// Returns an iterator containing every [`Viewport`](crate::Viewport) that currently exists.
     pub fn viewports_mut(&mut self) -> impl Iterator<Item = &mut crate::Viewport> {
-        let slice = self.platform_io_mut().viewports.as_slice();
+        let viewports = &mut self.platform_io_mut().viewports;
+        let slice =
+            unsafe { std::slice::from_raw_parts_mut(viewports.Data, viewports.Size as usize) };
         // safe because &mut self ensures exclusive ownership
-        unsafe { slice.iter().map(|ptr| &mut **ptr) }
+        unsafe { slice.iter().map(|ptr| &mut *(*ptr as *mut crate::Viewport)) }
     }
 
     /// Installs a [`PlatformViewportBackend`](crate::PlatformViewportBackend) that is used to
@@ -674,7 +677,7 @@ impl Context {
         // since pio.platform_get_window_pos is not a C compatible function, cimgui provides an extra function to set it.
         unsafe {
             docking_utils::ImGuiPlatformIO_Set_Platform_GetWindowPos(
-                pio,
+                pio as *mut _ as *mut sys::ImGuiPlatformIO,
                 docking_utils::platform_get_window_pos,
             );
         }
@@ -682,7 +685,7 @@ impl Context {
         // since pio.platform_get_window_size is not a C compatible function, cimgui provides an extra function to set it.
         unsafe {
             docking_utils::ImGuiPlatformIO_Set_Platform_GetWindowSize(
-                pio,
+                pio as *mut _ as *mut sys::ImGuiPlatformIO,
                 docking_utils::platform_get_window_size,
             );
         }

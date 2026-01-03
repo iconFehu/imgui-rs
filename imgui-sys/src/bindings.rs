@@ -1510,7 +1510,7 @@ impl Default for ImGuiSelectionRequest {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct ImGuiSelectionBasicStorage {
     pub Size: ::core::ffi::c_int,
     pub PreserveOrder: bool,
@@ -1533,8 +1533,52 @@ impl Default for ImGuiSelectionBasicStorage {
         }
     }
 }
+impl PartialEq for ImGuiSelectionBasicStorage {
+    fn eq(&self, other: &Self) -> bool {
+        macro_rules! fn_opt_eq {
+($left:expr, $right:expr) => {
+match ($left, $right) {
+(Some(a), Some(b)) => ::core::ptr::fn_addr_eq(a, b),
+(None, None) => true,
+_ => false,
+}
+};
+}
+
+        self.Size == other.Size
+            && self.PreserveOrder == other.PreserveOrder
+            && self.UserData == other.UserData
+            && fn_opt_eq!(self.AdapterIndexToStorageId, other.AdapterIndexToStorageId)
+            && self._SelectionOrder == other._SelectionOrder
+            && self._Storage == other._Storage
+    }
+}
+
+impl Eq for ImGuiSelectionBasicStorage {}
+
+impl ::core::hash::Hash for ImGuiSelectionBasicStorage {
+    fn hash<H: ::core::hash::Hasher>(&self, state: &mut H) {
+        macro_rules! fn_opt_hash {
+($value:expr, $state:expr) => {{
+let addr = match $value {
+Some(f) => f as *const () as usize,
+None => 0,
+};
+::core::hash::Hash::hash(&addr, $state);
+}};
+}
+
+        ::core::hash::Hash::hash(&self.Size, state);
+        ::core::hash::Hash::hash(&self.PreserveOrder, state);
+        ::core::hash::Hash::hash(&self.UserData, state);
+        fn_opt_hash!(self.AdapterIndexToStorageId, state);
+        ::core::hash::Hash::hash(&self._SelectionOrder, state);
+        ::core::hash::Hash::hash(&self._Storage, state);
+    }
+}
+
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct ImGuiSelectionExternalStorage {
     pub UserData: *mut ::core::ffi::c_void,
     pub AdapterSetItemSelected: ::core::option::Option<
@@ -1554,12 +1598,48 @@ impl Default for ImGuiSelectionExternalStorage {
         }
     }
 }
+impl PartialEq for ImGuiSelectionExternalStorage {
+    fn eq(&self, other: &Self) -> bool {
+        macro_rules! fn_opt_eq {
+($left:expr, $right:expr) => {
+match ($left, $right) {
+(Some(a), Some(b)) => ::core::ptr::fn_addr_eq(a, b),
+(None, None) => true,
+_ => false,
+}
+};
+}
+
+        self.UserData == other.UserData
+            && fn_opt_eq!(self.AdapterSetItemSelected, other.AdapterSetItemSelected)
+    }
+}
+
+impl Eq for ImGuiSelectionExternalStorage {}
+
+impl ::core::hash::Hash for ImGuiSelectionExternalStorage {
+    fn hash<H: ::core::hash::Hasher>(&self, state: &mut H) {
+        macro_rules! fn_opt_hash {
+($value:expr, $state:expr) => {{
+let addr = match $value {
+Some(f) => f as *const () as usize,
+None => 0,
+};
+::core::hash::Hash::hash(&addr, $state);
+}};
+}
+
+        ::core::hash::Hash::hash(&self.UserData, state);
+        fn_opt_hash!(self.AdapterSetItemSelected, state);
+    }
+}
+
 pub type ImDrawIdx = ::core::ffi::c_ushort;
 pub type ImDrawCallback = ::core::option::Option<
     unsafe extern "C" fn(parent_list: *const ImDrawList, cmd: *const ImDrawCmd),
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone)]
 pub struct ImDrawCmd {
     pub ClipRect: ImVec4_c,
     pub TexRef: ImTextureRef_c,
@@ -1580,6 +1660,30 @@ impl Default for ImDrawCmd {
         }
     }
 }
+impl PartialEq for ImDrawCmd {
+    fn eq(&self, other: &Self) -> bool {
+        macro_rules! fn_opt_eq {
+($left:expr, $right:expr) => {
+match ($left, $right) {
+(Some(a), Some(b)) => ::core::ptr::fn_addr_eq(a, b),
+(None, None) => true,
+_ => false,
+}
+};
+}
+
+        self.ClipRect == other.ClipRect
+            && self.TexRef == other.TexRef
+            && self.VtxOffset == other.VtxOffset
+            && self.IdxOffset == other.IdxOffset
+            && self.ElemCount == other.ElemCount
+            && fn_opt_eq!(self.UserCallback, other.UserCallback)
+            && self.UserCallbackData == other.UserCallbackData
+            && self.UserCallbackDataSize == other.UserCallbackDataSize
+            && self.UserCallbackDataOffset == other.UserCallbackDataOffset
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ImDrawVert {
@@ -2590,7 +2694,7 @@ impl Default for ImGuiViewport {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct ImGuiPlatformIO {
     pub Platform_GetClipboardTextFn: ::core::option::Option<
         unsafe extern "C" fn(ctx: *mut ImGuiContext) -> *const ::core::ffi::c_char,
@@ -2626,6 +2730,62 @@ impl Default for ImGuiPlatformIO {
         }
     }
 }
+impl PartialEq for ImGuiPlatformIO {
+    fn eq(&self, other: &Self) -> bool {
+        macro_rules! fn_opt_eq {
+($left:expr, $right:expr) => {
+match ($left, $right) {
+(Some(a), Some(b)) => ::core::ptr::fn_addr_eq(a, b),
+(None, None) => true,
+_ => false,
+}
+};
+}
+
+        fn_opt_eq!(self.Platform_GetClipboardTextFn, other.Platform_GetClipboardTextFn)
+            && fn_opt_eq!(self.Platform_SetClipboardTextFn, other.Platform_SetClipboardTextFn)
+            && self.Platform_ClipboardUserData == other.Platform_ClipboardUserData
+            && fn_opt_eq!(self.Platform_OpenInShellFn, other.Platform_OpenInShellFn)
+            && self.Platform_OpenInShellUserData == other.Platform_OpenInShellUserData
+            && fn_opt_eq!(self.Platform_SetImeDataFn, other.Platform_SetImeDataFn)
+            && self.Platform_ImeUserData == other.Platform_ImeUserData
+            && self.Platform_LocaleDecimalPoint == other.Platform_LocaleDecimalPoint
+            && self.Renderer_TextureMaxWidth == other.Renderer_TextureMaxWidth
+            && self.Renderer_TextureMaxHeight == other.Renderer_TextureMaxHeight
+            && self.Renderer_RenderState == other.Renderer_RenderState
+            && self.Textures == other.Textures
+    }
+}
+
+impl Eq for ImGuiPlatformIO {}
+
+impl ::core::hash::Hash for ImGuiPlatformIO {
+    fn hash<H: ::core::hash::Hasher>(&self, state: &mut H) {
+        macro_rules! fn_opt_hash {
+($value:expr, $state:expr) => {{
+let addr = match $value {
+Some(f) => f as *const () as usize,
+None => 0,
+};
+::core::hash::Hash::hash(&addr, $state);
+}};
+}
+
+        fn_opt_hash!(self.Platform_GetClipboardTextFn, state);
+        fn_opt_hash!(self.Platform_SetClipboardTextFn, state);
+        ::core::hash::Hash::hash(&self.Platform_ClipboardUserData, state);
+        fn_opt_hash!(self.Platform_OpenInShellFn, state);
+        ::core::hash::Hash::hash(&self.Platform_OpenInShellUserData, state);
+        fn_opt_hash!(self.Platform_SetImeDataFn, state);
+        ::core::hash::Hash::hash(&self.Platform_ImeUserData, state);
+        ::core::hash::Hash::hash(&self.Platform_LocaleDecimalPoint, state);
+        ::core::hash::Hash::hash(&self.Renderer_TextureMaxWidth, state);
+        ::core::hash::Hash::hash(&self.Renderer_TextureMaxHeight, state);
+        ::core::hash::Hash::hash(&self.Renderer_RenderState, state);
+        ::core::hash::Hash::hash(&self.Textures, state);
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ImGuiPlatformImeData {

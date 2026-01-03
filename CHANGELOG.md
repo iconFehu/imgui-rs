@@ -19,6 +19,7 @@
 ### Changed
 
 - MSRV is now `1.82`. We will bump the MSRV to `1.85` in the future.
+- Updated Dear ImGui to 1.92.5.
 - Keys now communicate with `imgui` in a far simpler manner -- rather than going through
   a complex keymap, they instead simply notate if they are or are not down to `imgui` directly.
   Multiple functions, such as `Ui::key_index`, `Ui::is_key_index_down`, `Ui::is_key_index_pressed`,

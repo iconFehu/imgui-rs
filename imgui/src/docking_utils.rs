@@ -4,7 +4,7 @@ use std::{
     os::raw::{c_char, c_int},
 };
 
-use crate::{PlatformIo, Viewport};
+use crate::Viewport;
 
 thread_local!(
     pub(crate) static PLATFORM_VIEWPORT_CONTEXT: RefCell<crate::PlatformViewportContext> = RefCell::new(PlatformViewportContext::dummy()));
@@ -72,106 +72,143 @@ pub trait PlatformViewportBackend: 'static {
     ) -> i32;
 }
 
-pub(crate) extern "C" fn platform_create_window(viewport: *mut Viewport) {
+pub(crate) unsafe extern "C" fn platform_create_window(viewport: *mut sys::ImGuiViewport) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx: &mut crate::PlatformViewportContext| {
-        ctx.backend.create_window(unsafe { &mut *viewport });
+        ctx.backend
+            .create_window(unsafe { &mut *(viewport as *mut Viewport) });
     })
 }
-pub(crate) extern "C" fn platform_destroy_window(viewport: *mut Viewport) {
+pub(crate) unsafe extern "C" fn platform_destroy_window(viewport: *mut sys::ImGuiViewport) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        ctx.backend.destroy_window(unsafe { &mut *viewport });
+        ctx.backend
+            .destroy_window(unsafe { &mut *(viewport as *mut Viewport) });
     })
 }
 
-pub(crate) extern "C" fn platform_show_window(viewport: *mut Viewport) {
-    PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        ctx.backend.show_window(unsafe { &mut *viewport });
-    })
-}
-pub(crate) extern "C" fn platform_set_window_pos(viewport: *mut Viewport, pos: sys::ImVec2) {
+pub(crate) unsafe extern "C" fn platform_show_window(viewport: *mut sys::ImGuiViewport) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
         ctx.backend
-            .set_window_pos(unsafe { &mut *viewport }, [pos.x, pos.y]);
+            .show_window(unsafe { &mut *(viewport as *mut Viewport) });
     })
 }
-pub(crate) extern "C" fn platform_get_window_pos(
-    viewport: *mut Viewport,
+pub(crate) unsafe extern "C" fn platform_set_window_pos(
+    viewport: *mut sys::ImGuiViewport,
+    pos: sys::ImVec2,
+) {
+    PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
+        ctx.backend
+            .set_window_pos(unsafe { &mut *(viewport as *mut Viewport) }, [pos.x, pos.y]);
+    })
+}
+pub(crate) unsafe extern "C" fn platform_get_window_pos(
+    viewport: *mut sys::ImGuiViewport,
     out_pos: *mut sys::ImVec2,
 ) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        let pos = ctx.backend.get_window_pos(unsafe { &mut *viewport });
+        let pos = ctx
+            .backend
+            .get_window_pos(unsafe { &mut *(viewport as *mut Viewport) });
         unsafe {
             *out_pos = sys::ImVec2::new(pos[0], pos[1]);
         }
     })
 }
-pub(crate) extern "C" fn platform_set_window_size(viewport: *mut Viewport, size: sys::ImVec2) {
+pub(crate) unsafe extern "C" fn platform_set_window_size(
+    viewport: *mut sys::ImGuiViewport,
+    size: sys::ImVec2,
+) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
         ctx.backend
-            .set_window_size(unsafe { &mut *viewport }, [size.x, size.y]);
+            .set_window_size(unsafe { &mut *(viewport as *mut Viewport) }, [size.x, size.y]);
     })
 }
-pub(crate) extern "C" fn platform_get_window_size(
-    viewport: *mut Viewport,
+pub(crate) unsafe extern "C" fn platform_get_window_size(
+    viewport: *mut sys::ImGuiViewport,
     out_size: *mut sys::ImVec2,
 ) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        let size = ctx.backend.get_window_size(unsafe { &mut *viewport });
+        let size = ctx
+            .backend
+            .get_window_size(unsafe { &mut *(viewport as *mut Viewport) });
         unsafe {
             *out_size = sys::ImVec2::new(size[0], size[1]);
         }
     })
 }
-pub(crate) extern "C" fn platform_set_window_focus(viewport: *mut Viewport) {
+pub(crate) unsafe extern "C" fn platform_set_window_focus(viewport: *mut sys::ImGuiViewport) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        ctx.backend.set_window_focus(unsafe { &mut *viewport });
+        ctx.backend
+            .set_window_focus(unsafe { &mut *(viewport as *mut Viewport) });
     })
 }
-pub(crate) extern "C" fn platform_get_window_focus(viewport: *mut Viewport) -> bool {
+pub(crate) unsafe extern "C" fn platform_get_window_focus(
+    viewport: *mut sys::ImGuiViewport,
+) -> bool {
     PLATFORM_VIEWPORT_CONTEXT
-        .with_borrow_mut(|ctx| ctx.backend.get_window_focus(unsafe { &mut *viewport }))
+        .with_borrow_mut(|ctx| ctx.backend.get_window_focus(unsafe {
+            &mut *(viewport as *mut Viewport)
+        }))
 }
-pub(crate) extern "C" fn platform_get_window_minimized(viewport: *mut Viewport) -> bool {
+pub(crate) unsafe extern "C" fn platform_get_window_minimized(
+    viewport: *mut sys::ImGuiViewport,
+) -> bool {
     PLATFORM_VIEWPORT_CONTEXT
-        .with_borrow_mut(|ctx| ctx.backend.get_window_minimized(unsafe { &mut *viewport }))
+        .with_borrow_mut(|ctx| ctx.backend.get_window_minimized(unsafe {
+            &mut *(viewport as *mut Viewport)
+        }))
 }
-pub(crate) extern "C" fn platform_set_window_title(viewport: *mut Viewport, title: *const c_char) {
+pub(crate) unsafe extern "C" fn platform_set_window_title(
+    viewport: *mut sys::ImGuiViewport,
+    title: *const c_char,
+) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
         let title = unsafe { CStr::from_ptr(title).to_str().unwrap() };
         ctx.backend
-            .set_window_title(unsafe { &mut *viewport }, title);
+            .set_window_title(unsafe { &mut *(viewport as *mut Viewport) }, title);
     })
 }
-pub(crate) extern "C" fn platform_set_window_alpha(viewport: *mut Viewport, alpha: f32) {
+pub(crate) unsafe extern "C" fn platform_set_window_alpha(
+    viewport: *mut sys::ImGuiViewport,
+    alpha: f32,
+) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
         ctx.backend
-            .set_window_alpha(unsafe { &mut *viewport }, alpha);
+            .set_window_alpha(unsafe { &mut *(viewport as *mut Viewport) }, alpha);
     })
 }
-pub(crate) extern "C" fn platform_update_window(viewport: *mut Viewport) {
+pub(crate) unsafe extern "C" fn platform_update_window(viewport: *mut sys::ImGuiViewport) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        ctx.backend.update_window(unsafe { &mut *viewport });
+        ctx.backend
+            .update_window(unsafe { &mut *(viewport as *mut Viewport) });
     })
 }
-pub(crate) extern "C" fn platform_render_window(viewport: *mut Viewport, _arg: *mut c_void) {
+pub(crate) unsafe extern "C" fn platform_render_window(
+    viewport: *mut sys::ImGuiViewport,
+    _arg: *mut c_void,
+) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        ctx.backend.render_window(unsafe { &mut *viewport });
+        ctx.backend
+            .render_window(unsafe { &mut *(viewport as *mut Viewport) });
     })
 }
-pub(crate) extern "C" fn platform_swap_buffers(viewport: *mut Viewport, _arg: *mut c_void) {
+pub(crate) unsafe extern "C" fn platform_swap_buffers(
+    viewport: *mut sys::ImGuiViewport,
+    _arg: *mut c_void,
+) {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        ctx.backend.swap_buffers(unsafe { &mut *viewport });
+        ctx.backend
+            .swap_buffers(unsafe { &mut *(viewport as *mut Viewport) });
     })
 }
-pub(crate) extern "C" fn platform_create_vk_surface(
-    viewport: *mut Viewport,
+pub(crate) unsafe extern "C" fn platform_create_vk_surface(
+    viewport: *mut sys::ImGuiViewport,
     instance: u64,
     _arg: *const c_void,
     out_surface: *mut u64,
 ) -> c_int {
     PLATFORM_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
         ctx.backend
-            .create_vk_surface(unsafe { &mut *viewport }, instance, unsafe {
+            .create_vk_surface(unsafe { &mut *(viewport as *mut Viewport) }, instance, unsafe {
                 &mut *out_surface
             })
     })
@@ -277,30 +314,43 @@ pub trait RendererViewportBackend: 'static {
     fn swap_buffers(&mut self, viewport: &mut Viewport);
 }
 
-pub(crate) extern "C" fn renderer_create_window(viewport: *mut Viewport) {
-    RENDERER_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        ctx.backend.create_window(unsafe { &mut *viewport });
-    })
-}
-pub(crate) extern "C" fn renderer_destroy_window(viewport: *mut Viewport) {
-    RENDERER_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        ctx.backend.destroy_window(unsafe { &mut *viewport });
-    })
-}
-pub(crate) extern "C" fn renderer_set_window_size(viewport: *mut Viewport, size: sys::ImVec2) {
+pub(crate) unsafe extern "C" fn renderer_create_window(viewport: *mut sys::ImGuiViewport) {
     RENDERER_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
         ctx.backend
-            .set_window_size(unsafe { &mut *viewport }, [size.x, size.y]);
+            .create_window(unsafe { &mut *(viewport as *mut Viewport) });
     })
 }
-pub(crate) extern "C" fn renderer_render_window(viewport: *mut Viewport, _arg: *mut c_void) {
+pub(crate) unsafe extern "C" fn renderer_destroy_window(viewport: *mut sys::ImGuiViewport) {
     RENDERER_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        ctx.backend.render_window(unsafe { &mut *viewport });
+        ctx.backend
+            .destroy_window(unsafe { &mut *(viewport as *mut Viewport) });
     })
 }
-pub(crate) extern "C" fn renderer_swap_buffers(viewport: *mut Viewport, _arg: *mut c_void) {
+pub(crate) unsafe extern "C" fn renderer_set_window_size(
+    viewport: *mut sys::ImGuiViewport,
+    size: sys::ImVec2,
+) {
     RENDERER_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
-        ctx.backend.swap_buffers(unsafe { &mut *viewport });
+        ctx.backend
+            .set_window_size(unsafe { &mut *(viewport as *mut Viewport) }, [size.x, size.y]);
+    })
+}
+pub(crate) unsafe extern "C" fn renderer_render_window(
+    viewport: *mut sys::ImGuiViewport,
+    _arg: *mut c_void,
+) {
+    RENDERER_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
+        ctx.backend
+            .render_window(unsafe { &mut *(viewport as *mut Viewport) });
+    })
+}
+pub(crate) unsafe extern "C" fn renderer_swap_buffers(
+    viewport: *mut sys::ImGuiViewport,
+    _arg: *mut c_void,
+) {
+    RENDERER_VIEWPORT_CONTEXT.with_borrow_mut(|ctx| {
+        ctx.backend
+            .swap_buffers(unsafe { &mut *(viewport as *mut Viewport) });
     })
 }
 
@@ -393,11 +443,11 @@ fn test_platform_monitor_memory_layout() {
 
 extern "C" {
     pub(crate) fn ImGuiPlatformIO_Set_Platform_GetWindowPos(
-        pio: *mut PlatformIo,
-        func: extern "C" fn(*mut Viewport, *mut sys::ImVec2),
+        pio: *mut sys::ImGuiPlatformIO,
+        func: unsafe extern "C" fn(*mut sys::ImGuiViewport, *mut sys::ImVec2),
     );
     pub(crate) fn ImGuiPlatformIO_Set_Platform_GetWindowSize(
-        pio: *mut PlatformIo,
-        func: extern "C" fn(*mut Viewport, *mut sys::ImVec2),
+        pio: *mut sys::ImGuiPlatformIO,
+        func: unsafe extern "C" fn(*mut sys::ImGuiViewport, *mut sys::ImVec2),
     );
 }
