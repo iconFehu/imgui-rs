@@ -10,6 +10,12 @@ use crate::{sys, HoveredFlags};
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Style {
+    /// Base font size (used for scaling).
+    pub font_size_base: f32,
+    /// Main scaling factor applied to fonts.
+    pub font_scale_main: f32,
+    /// DPI scaling factor applied to fonts.
+    pub font_scale_dpi: f32,
     /// Global alpha applies to everything
     pub alpha: f32,
     /// Additional alpha multiplier applied to disabled elements. Multiplies over current value of [`Style::alpha`].
@@ -25,6 +31,8 @@ pub struct Style {
     ///
     /// Generally set to 0.0 or 1.0 (other values are not well tested and cost more CPU/GPU).
     pub window_border_size: f32,
+    /// Extra padding used when hovering window borders.
+    pub window_border_hover_padding: f32,
     /// Minimum window size
     pub window_min_size: [f32; 2],
     /// Alignment for title bar text.
@@ -84,6 +92,8 @@ pub struct Style {
     pub scrollbar_size: f32,
     /// Rounding radius of scrollbar grab corners
     pub scrollbar_rounding: f32,
+    /// Padding within the scrollbar
+    pub scrollbar_padding: f32,
     /// Minimum width/height of a grab box for slider/scrollbar
     pub grab_min_size: f32,
     /// Rounding radius of grab corners.
@@ -92,31 +102,45 @@ pub struct Style {
     pub grab_rounding: f32,
     /// The size in pixels of the dead-zone around zero on logarithmic sliders that cross zero
     pub log_slider_deadzone: f32,
+    /// Thickness of border around images
+    pub image_border_size: f32,
     /// Rounding radius of upper corners of tabs.
     ///
     /// Set to 0.0 to have rectangular tabs.
     pub tab_rounding: f32,
     /// Thickness of border around tabs
     pub tab_border_size: f32,
-    /// Minimum width for close button to appear on an unselected tab when hovered.
-    ///
-    /// `= 0.0`: always show when hovering
-    /// `= f32::MAX`: never show close button unless selected
-    pub tab_min_width_for_close_button: f32,
-
+    /// Base minimum tab width.
+    pub tab_min_width_base: f32,
+    /// Minimum tab width when shrinking.
+    pub tab_min_width_shrink: f32,
+    /// Minimum width for close button on selected tab.
+    pub tab_close_button_min_width_selected: f32,
+    /// Minimum width for close button on unselected tab.
+    pub tab_close_button_min_width_unselected: f32,
     /// Thickness of tab-bar separator, which takes on the tab active color to denote focus.
     pub tab_bar_border_size: f32,
-
     /// Thickness of tab-bar overline, which highlights the selected tab-bar.
     pub tab_bar_overline_size: f32,
-
     /// Angle of angled headers (supported values range from -50.0f degrees to +50.0f degrees).
     pub table_angled_headers_angle: f32,
-
     /// Alignment of angled headers within the cell
     pub table_angled_headers_text_align: [f32; 2],
-
-    /// Side of the color buttonton pubin color editor widgets (left/right).
+    /// Tree line flags.
+    pub tree_lines_flags: sys::ImGuiTreeNodeFlags,
+    /// Tree line size.
+    pub tree_lines_size: f32,
+    /// Tree line rounding.
+    pub tree_lines_rounding: f32,
+    /// Drag-and-drop target rounding.
+    pub drag_drop_target_rounding: f32,
+    /// Drag-and-drop target border size.
+    pub drag_drop_target_border_size: f32,
+    /// Drag-and-drop target padding.
+    pub drag_drop_target_padding: f32,
+    /// Size of color marker for color picker.
+    pub color_marker_size: f32,
+    /// Side of the color button in color editor widgets (left/right).
     ///
     /// Defaults to [`Direction::Right`].
     pub color_button_position: Direction,
@@ -128,14 +152,13 @@ pub struct Style {
     ///
     /// Defaults to [0.5, 0.5] (top-left aligned).
     pub selectable_text_align: [f32; 2],
-    /// Thickkness of border in [`Ui::separator_with_text`](crate::Ui::separator_with_text)
+    /// Thickness of border in [`Ui::separator_with_text`](crate::Ui::separator_with_text)
     pub separator_text_border_size: f32,
     /// Alignment of text within the separator. Defaults to `[0.0, 0.5]` (left aligned, center).
     pub separator_text_align: [f32; 2],
     /// Horizontal offset of text from each edge of the separator + spacing on other axis.
     /// Generally small values. .y is recommended to be == [`StyleVar::FramePadding`].y.
     pub separator_text_padding: [f32; 2],
-
     /// Window positions are clamped to be visible within the display area or monitors by at least
     /// this amount.
     ///
@@ -145,11 +168,6 @@ pub struct Style {
     ///
     /// Also applies to popups/tooltips in addition to regular windows.
     pub display_safe_area_padding: [f32; 2],
-
-    /// Thickness of resizing border between docked windows
-    #[cfg(feature = "docking")]
-    pub docking_separator_size: f32,
-
     /// Scale software-rendered mouse cursor.
     ///
     /// May be removed later.
@@ -177,28 +195,25 @@ pub struct Style {
     ///
     /// Decrease for higher quality but more geometry.
     pub circle_tesselation_max_error: f32,
-
     /// Style colors.
     pub colors: [[f32; 4]; StyleColor::COUNT],
-
     /// Delay on hover before
     /// [`Ui::is_item_hovered_with_flags`](crate::Ui::is_item_hovered_with_flags) + [`HoveredFlags::STATIONARY`] returns true
     pub hover_stationary_delay: f32,
-
     /// Delay on hover before
     /// [`Ui::is_item_hovered_with_flags`](crate::Ui::is_item_hovered_with_flags) + [`HoveredFlags::DELAY_SHORT`] returns true
     pub hover_delay_short: f32,
-
     /// Delay on hover before
     /// [`Ui::is_item_hovered_with_flags`](crate::Ui::is_item_hovered_with_flags) + [`HoveredFlags::DELAY_NORMAL`] returns true
     pub hover_delay_normal: f32,
-
     /// Default flags when using [`HoveredFlags::FOR_TOOLTIP`] or [`Ui::begin_tooltip`](crate::Ui::begin_tooltip)
     /// or [`Ui::tooltip_text`](crate::Ui::tooltip_text) while using mouse.
     pub hover_flags_for_tooltip_mouse: HoveredFlags,
     /// Default flags when using [`HoveredFlags::FOR_TOOLTIP`] or [`Ui::begin_tooltip`](crate::Ui::begin_tooltip)
     /// or [`Ui::tooltip_text`](crate::Ui::tooltip_text) while using keyboard/gamepad.
     pub hover_flags_for_tooltip_nav: HoveredFlags,
+    pub main_scale: f32,
+    pub next_frame_font_size_base: f32,
 }
 
 unsafe impl RawCast<sys::ImGuiStyle> for Style {}
@@ -244,66 +259,11 @@ impl Style {
 
 impl Default for Style {
     fn default() -> Self {
-        Self {
-            alpha: 1.0,
-            disabled_alpha: 0.6,
-            window_padding: [8.0, 8.0],
-            window_rounding: 0.0,
-            window_border_size: 1.0,
-            window_min_size: [32.0, 32.0],
-            window_title_align: [0.0, 0.5],
-            window_menu_button_position: Direction::Left,
-            child_rounding: 0.0,
-            child_border_size: 1.0,
-            popup_rounding: 0.0,
-            popup_border_size: 1.0,
-            frame_padding: [4.0, 3.0],
-            frame_rounding: 0.0,
-            frame_border_size: 0.0,
-            item_spacing: [8.0, 4.0],
-            item_inner_spacing: [4.0, 4.0],
-            cell_padding: [4.0, 2.0],
-            touch_extra_padding: [0.0, 0.0],
-            indent_spacing: 21.0,
-            columns_min_spacing: 6.0,
-            scrollbar_size: 14.0,
-            scrollbar_rounding: 9.0,
-            grab_min_size: 12.0,
-            grab_rounding: 0.0,
-            log_slider_deadzone: 4.0,
-            tab_rounding: 4.0,
-            tab_border_size: 0.0,
-            tab_min_width_for_close_button: 0.0,
-            tab_bar_border_size: 1.0,
-            tab_bar_overline_size: 2.0,
-            table_angled_headers_angle: 35.0 * (std::f32::consts::PI / 180.0),
-            table_angled_headers_text_align: [0.5, 0.0],
-            color_button_position: Direction::Right,
-            button_text_align: [0.5, 0.5],
-            selectable_text_align: [0.0, 0.0],
-            separator_text_border_size: 3.0,
-            separator_text_align: [0.0, 0.5],
-            separator_text_padding: [20.0, 3.0],
-            display_window_padding: [19.0, 19.0],
-            display_safe_area_padding: [3.0, 3.0],
-            #[cfg(feature = "docking")]
-            docking_separator_size: 2.0,
-            mouse_cursor_scale: 1.0,
-            anti_aliased_lines: true,
-            anti_aliased_lines_use_tex: true,
-            anti_aliased_fill: true,
-            curve_tessellation_tol: 1.25,
-            circle_tesselation_max_error: 0.3,
-            hover_stationary_delay: 0.15,
-            hover_delay_short: 0.15,
-            hover_delay_normal: 0.4,
-            hover_flags_for_tooltip_mouse: HoveredFlags::STATIONARY
-                | HoveredFlags::DELAY_SHORT
-                | HoveredFlags::ALLOW_WHEN_DISABLED,
-            hover_flags_for_tooltip_nav: HoveredFlags::NO_SHARED_DELAY
-                | HoveredFlags::DELAY_NORMAL
-                | HoveredFlags::ALLOW_WHEN_DISABLED,
-            colors: StyleColor::dark_colors(),
+        unsafe {
+            let raw = sys::ImGuiStyle_ImGuiStyle();
+            let style = *(raw as *const Style);
+            sys::ImGuiStyle_destroy(raw);
+            style
         }
     }
 }
@@ -331,7 +291,7 @@ impl IndexMut<StyleColor> for Style {
 ///
 /// Take special note of [`StyleColor::dark_colors`], [`StyleColor::light_colors`], and [`StyleColor::classic_colors`],
 /// which can be used to get the color palettes ImGui uses.
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum StyleColor {
@@ -401,6 +361,8 @@ pub enum StyleColor {
     ResizeGripHovered = sys::ImGuiCol_ResizeGripHovered,
     /// Resize handle when mouse button down
     ResizeGripActive = sys::ImGuiCol_ResizeGripActive,
+    /// Input text cursor
+    InputTextCursor = sys::ImGuiCol_InputTextCursor,
     /// Hovered tab (applies regardless if tab is active, or is in the active window)
     TabHovered = sys::ImGuiCol_TabHovered,
     /// Inactive tab color. Applies to both tab widgets and docked windows
@@ -447,11 +409,17 @@ pub enum StyleColor {
     TextLink = sys::ImGuiCol_TextLink,
     /// The highlight color used for selection in text inputs
     TextSelectedBg = sys::ImGuiCol_TextSelectedBg,
+    /// Tree lines color
+    TreeLines = sys::ImGuiCol_TreeLines,
 
     /// Used for drag-and-drop system
     DragDropTarget = sys::ImGuiCol_DragDropTarget,
+    /// Drag-and-drop target background
+    DragDropTargetBg = sys::ImGuiCol_DragDropTargetBg,
+    /// Unsaved document marker
+    UnsavedMarker = sys::ImGuiCol_UnsavedMarker,
     /// Gamepad/keyboard: current highlighted item
-    NavHighlight = sys::ImGuiCol_NavHighlight,
+    NavCursor = sys::ImGuiCol_NavCursor,
     /// Highlight window when using CTRL+TAB
     NavWindowingHighlight = sys::ImGuiCol_NavWindowingHighlight,
     /// Darken/colorize entire screen behind the CTRL+TAB window list, when active
@@ -496,6 +464,7 @@ impl StyleColor {
         StyleColor::ResizeGrip,
         StyleColor::ResizeGripHovered,
         StyleColor::ResizeGripActive,
+        StyleColor::InputTextCursor,
         StyleColor::TabHovered,
         StyleColor::Tab,
         StyleColor::TabSelected,
@@ -518,8 +487,11 @@ impl StyleColor {
         StyleColor::TableRowBgAlt,
         StyleColor::TextLink,
         StyleColor::TextSelectedBg,
+        StyleColor::TreeLines,
         StyleColor::DragDropTarget,
-        StyleColor::NavHighlight,
+        StyleColor::DragDropTargetBg,
+        StyleColor::UnsavedMarker,
+        StyleColor::NavCursor,
         StyleColor::NavWindowingHighlight,
         StyleColor::NavWindowingDimBg,
         StyleColor::ModalWindowDimBg,
@@ -566,6 +538,7 @@ impl StyleColor {
             StyleColor::ResizeGrip => "ResizeGrip",
             StyleColor::ResizeGripHovered => "ResizeGripHovered",
             StyleColor::ResizeGripActive => "ResizeGripActive",
+            StyleColor::InputTextCursor => "InputTextCursor",
             StyleColor::Tab => "Tab",
             StyleColor::TabHovered => "TabHovered",
             StyleColor::TabSelected => "TabSelected",
@@ -581,8 +554,11 @@ impl StyleColor {
             StyleColor::TableRowBg => "TableRowBg",
             StyleColor::TableRowBgAlt => "TableRowBgAlt",
             StyleColor::TextSelectedBg => "TextSelectedBg",
+            StyleColor::TreeLines => "TreeLines",
             StyleColor::DragDropTarget => "DragDropTarget",
-            StyleColor::NavHighlight => "NavHighlight",
+            StyleColor::DragDropTargetBg => "DragDropTargetBg",
+            StyleColor::UnsavedMarker => "UnsavedMarker",
+            StyleColor::NavCursor => "NavCursor",
             StyleColor::NavWindowingHighlight => "NavWindowingHighlight",
             StyleColor::NavWindowingDimBg => "NavWindowingDimBg",
             StyleColor::ModalWindowDimBg => "ModalWindowDimBg",
@@ -600,186 +576,18 @@ impl StyleColor {
     ///
     /// You can set this output to [`Style::colors`] to change the style palette.
     pub fn dark_colors() -> [[f32; 4]; StyleColor::COUNT] {
-        let mut colors = [Default::default(); StyleColor::COUNT];
-
-        colors[Self::Text as usize] = [1.00, 1.00, 1.00, 1.00];
-        colors[Self::TextDisabled as usize] = [0.50, 0.50, 0.50, 1.00];
-        colors[Self::WindowBg as usize] = [0.06, 0.06, 0.06, 0.94];
-        colors[Self::ChildBg as usize] = [0.00, 0.00, 0.00, 0.00];
-        colors[Self::PopupBg as usize] = [0.08, 0.08, 0.08, 0.94];
-        colors[Self::Border as usize] = [0.43, 0.43, 0.50, 0.50];
-        colors[Self::BorderShadow as usize] = [0.00, 0.00, 0.00, 0.00];
-        colors[Self::FrameBg as usize] = [0.16, 0.29, 0.48, 0.54];
-        colors[Self::FrameBgHovered as usize] = [0.26, 0.59, 0.98, 0.40];
-        colors[Self::FrameBgActive as usize] = [0.26, 0.59, 0.98, 0.67];
-        colors[Self::TitleBg as usize] = [0.04, 0.04, 0.04, 1.00];
-        colors[Self::TitleBgActive as usize] = [0.16, 0.29, 0.48, 1.00];
-        colors[Self::TitleBgCollapsed as usize] = [0.00, 0.00, 0.00, 0.51];
-        colors[Self::MenuBarBg as usize] = [0.14, 0.14, 0.14, 1.00];
-        colors[Self::ScrollbarBg as usize] = [0.02, 0.02, 0.02, 0.53];
-        colors[Self::ScrollbarGrab as usize] = [0.31, 0.31, 0.31, 1.00];
-        colors[Self::ScrollbarGrabHovered as usize] = [0.41, 0.41, 0.41, 1.00];
-        colors[Self::ScrollbarGrabActive as usize] = [0.51, 0.51, 0.51, 1.00];
-        colors[Self::CheckMark as usize] = [0.26, 0.59, 0.98, 1.00];
-        colors[Self::SliderGrab as usize] = [0.24, 0.52, 0.88, 1.00];
-        colors[Self::SliderGrabActive as usize] = [0.26, 0.59, 0.98, 1.00];
-        colors[Self::Button as usize] = [0.26, 0.59, 0.98, 0.40];
-        colors[Self::ButtonHovered as usize] = [0.26, 0.59, 0.98, 1.00];
-        colors[Self::ButtonActive as usize] = [0.06, 0.53, 0.98, 1.00];
-        colors[Self::Header as usize] = [0.26, 0.59, 0.98, 0.31];
-        colors[Self::HeaderHovered as usize] = [0.26, 0.59, 0.98, 0.80];
-        colors[Self::HeaderActive as usize] = [0.26, 0.59, 0.98, 1.00];
-        colors[Self::Separator as usize] = colors[Self::Border as usize];
-        colors[Self::SeparatorHovered as usize] = [0.10, 0.40, 0.75, 0.78];
-        colors[Self::SeparatorActive as usize] = [0.10, 0.40, 0.75, 1.00];
-        colors[Self::ResizeGrip as usize] = [0.26, 0.59, 0.98, 0.20];
-        colors[Self::ResizeGripHovered as usize] = [0.26, 0.59, 0.98, 0.67];
-        colors[Self::ResizeGripActive as usize] = [0.26, 0.59, 0.98, 0.95];
-        colors[Self::TabHovered as usize] = colors[Self::HeaderHovered as usize];
-        colors[Self::Tab as usize] = lerp(
-            colors[Self::Header as usize],
-            colors[Self::TitleBgActive as usize],
-            0.80,
-        );
-        colors[Self::TabSelected as usize] = lerp(
-            colors[Self::HeaderActive as usize],
-            colors[Self::TitleBgActive as usize],
-            0.60,
-        );
-        colors[Self::TabSelectedOverline as usize] = colors[Self::HeaderActive as usize];
-        colors[Self::TabDimmed as usize] = lerp(
-            colors[Self::Tab as usize],
-            colors[Self::TitleBg as usize],
-            0.80,
-        );
-        colors[Self::TabDimmedSelected as usize] = lerp(
-            colors[Self::TabSelected as usize],
-            colors[Self::TitleBg as usize],
-            0.40,
-        );
-        colors[Self::TabDimmedSelectedOverline as usize] = [0.50, 0.50, 0.50, 1.00];
-        colors[Self::PlotLines as usize] = [0.61, 0.61, 0.61, 1.00];
-        colors[Self::PlotLinesHovered as usize] = [1.00, 0.43, 0.35, 1.00];
-        colors[Self::PlotHistogram as usize] = [0.90, 0.70, 0.00, 1.00];
-        colors[Self::PlotHistogramHovered as usize] = [1.00, 0.60, 0.00, 1.00];
-        colors[Self::TableHeaderBg as usize] = [0.19, 0.19, 0.20, 1.00];
-        colors[Self::TableBorderStrong as usize] = [0.31, 0.31, 0.35, 1.00];
-        colors[Self::TableBorderLight as usize] = [0.23, 0.23, 0.25, 1.00];
-        colors[Self::TableRowBg as usize] = [0.00, 0.00, 0.00, 0.00];
-        colors[Self::TableRowBgAlt as usize] = [1.00, 1.00, 1.00, 0.06];
-        colors[Self::TextLink as usize] = colors[Self::HeaderActive as usize];
-        colors[Self::TextSelectedBg as usize] = [0.26, 0.59, 0.98, 0.35];
-        colors[Self::DragDropTarget as usize] = [1.00, 1.00, 0.00, 0.90];
-        colors[Self::NavHighlight as usize] = [0.26, 0.59, 0.98, 1.00];
-        colors[Self::NavWindowingHighlight as usize] = [1.00, 1.00, 1.00, 0.70];
-        colors[Self::NavWindowingDimBg as usize] = [0.80, 0.80, 0.80, 0.20];
-        colors[Self::ModalWindowDimBg as usize] = [0.80, 0.80, 0.80, 0.35];
-
-        #[cfg(feature = "docking")]
-        {
-            colors[Self::DockingPreview as usize] = std::array::from_fn(|idx| {
-                let multiplier = if idx == 3 { 0.7 } else { 1.0 };
-
-                colors[Self::HeaderActive as usize][idx] * multiplier
-            });
-
-            colors[Self::DockingEmptyBg as usize] = [0.2, 0.2, 0.2, 1.0];
-        }
-
-        colors
+        let mut style = Style::default();
+        style.use_dark_colors();
+        style.colors
     }
 
     /// Returns the "Light" style colors for ImGui as an array.
     ///
     /// You can set this output to [`Style::colors`] to change the style palette.
     pub fn light_colors() -> [[f32; 4]; StyleColor::COUNT] {
-        let mut colors = [Default::default(); StyleColor::COUNT];
-
-        colors[Self::Text as usize] = [0.00, 0.00, 0.00, 1.00];
-        colors[Self::TextDisabled as usize] = [0.60, 0.60, 0.60, 1.00];
-        colors[Self::WindowBg as usize] = [0.94, 0.94, 0.94, 1.00];
-        colors[Self::ChildBg as usize] = [0.00, 0.00, 0.00, 0.00];
-        colors[Self::PopupBg as usize] = [1.00, 1.00, 1.00, 0.98];
-        colors[Self::Border as usize] = [0.00, 0.00, 0.00, 0.30];
-        colors[Self::BorderShadow as usize] = [0.00, 0.00, 0.00, 0.00];
-        colors[Self::FrameBg as usize] = [1.00, 1.00, 1.00, 1.00];
-        colors[Self::FrameBgHovered as usize] = [0.26, 0.59, 0.98, 0.40];
-        colors[Self::FrameBgActive as usize] = [0.26, 0.59, 0.98, 0.67];
-        colors[Self::TitleBg as usize] = [0.96, 0.96, 0.96, 1.00];
-        colors[Self::TitleBgActive as usize] = [0.82, 0.82, 0.82, 1.00];
-        colors[Self::TitleBgCollapsed as usize] = [1.00, 1.00, 1.00, 0.51];
-        colors[Self::MenuBarBg as usize] = [0.86, 0.86, 0.86, 1.00];
-        colors[Self::ScrollbarBg as usize] = [0.98, 0.98, 0.98, 0.53];
-        colors[Self::ScrollbarGrab as usize] = [0.69, 0.69, 0.69, 0.80];
-        colors[Self::ScrollbarGrabHovered as usize] = [0.49, 0.49, 0.49, 0.80];
-        colors[Self::ScrollbarGrabActive as usize] = [0.49, 0.49, 0.49, 1.00];
-        colors[Self::CheckMark as usize] = [0.26, 0.59, 0.98, 1.00];
-        colors[Self::SliderGrab as usize] = [0.26, 0.59, 0.98, 0.78];
-        colors[Self::SliderGrabActive as usize] = [0.46, 0.54, 0.80, 0.60];
-        colors[Self::Button as usize] = [0.26, 0.59, 0.98, 0.40];
-        colors[Self::ButtonHovered as usize] = [0.26, 0.59, 0.98, 1.00];
-        colors[Self::ButtonActive as usize] = [0.06, 0.53, 0.98, 1.00];
-        colors[Self::Header as usize] = [0.26, 0.59, 0.98, 0.31];
-        colors[Self::HeaderHovered as usize] = [0.26, 0.59, 0.98, 0.80];
-        colors[Self::HeaderActive as usize] = [0.26, 0.59, 0.98, 1.00];
-        colors[Self::Separator as usize] = [0.39, 0.39, 0.39, 0.62];
-        colors[Self::SeparatorHovered as usize] = [0.14, 0.44, 0.80, 0.78];
-        colors[Self::SeparatorActive as usize] = [0.14, 0.44, 0.80, 1.00];
-        colors[Self::ResizeGrip as usize] = [0.35, 0.35, 0.35, 0.17];
-        colors[Self::ResizeGripHovered as usize] = [0.26, 0.59, 0.98, 0.67];
-        colors[Self::ResizeGripActive as usize] = [0.26, 0.59, 0.98, 0.95];
-        colors[Self::TabHovered as usize] = colors[Self::HeaderHovered as usize];
-        colors[Self::Tab as usize] = lerp(
-            colors[Self::Header as usize],
-            colors[Self::TitleBgActive as usize],
-            0.90,
-        );
-        colors[Self::TabSelected as usize] = lerp(
-            colors[Self::HeaderActive as usize],
-            colors[Self::TitleBgActive as usize],
-            0.60,
-        );
-        colors[Self::TabSelectedOverline as usize] = colors[Self::HeaderActive as usize];
-        colors[Self::TabDimmed as usize] = lerp(
-            colors[Self::Tab as usize],
-            colors[Self::TitleBg as usize],
-            0.80,
-        );
-        colors[Self::TabDimmedSelected as usize] = lerp(
-            colors[Self::TabSelected as usize],
-            colors[Self::TitleBg as usize],
-            0.40,
-        );
-        colors[Self::TabDimmedSelectedOverline as usize] = [0.26, 0.59, 1.00, 1.00];
-        colors[Self::PlotLines as usize] = [0.39, 0.39, 0.39, 1.00];
-        colors[Self::PlotLinesHovered as usize] = [1.00, 0.43, 0.35, 1.00];
-        colors[Self::PlotHistogram as usize] = [0.90, 0.70, 0.00, 1.00];
-        colors[Self::PlotHistogramHovered as usize] = [1.00, 0.45, 0.00, 1.00];
-        colors[Self::TableHeaderBg as usize] = [0.78, 0.87, 0.98, 1.00];
-        colors[Self::TableBorderStrong as usize] = [0.57, 0.57, 0.64, 1.00];
-        colors[Self::TableBorderLight as usize] = [0.68, 0.68, 0.74, 1.00];
-        colors[Self::TableRowBg as usize] = [0.00, 0.00, 0.00, 0.00];
-        colors[Self::TableRowBgAlt as usize] = [0.30, 0.30, 0.30, 0.09];
-        colors[Self::TextLink as usize] = colors[Self::HeaderActive as usize];
-        colors[Self::TextSelectedBg as usize] = [0.26, 0.59, 0.98, 0.35];
-        colors[Self::DragDropTarget as usize] = [0.26, 0.59, 0.98, 0.95];
-        colors[Self::NavHighlight as usize] = colors[Self::HeaderHovered as usize];
-        colors[Self::NavWindowingHighlight as usize] = [0.70, 0.70, 0.70, 0.70];
-        colors[Self::NavWindowingDimBg as usize] = [0.20, 0.20, 0.20, 0.20];
-        colors[Self::ModalWindowDimBg as usize] = [0.20, 0.20, 0.20, 0.35];
-
-        #[cfg(feature = "docking")]
-        {
-            colors[Self::DockingPreview as usize] = std::array::from_fn(|idx| {
-                let multiplier = if idx == 3 { 0.7 } else { 1.0 };
-
-                colors[Self::Header as usize][idx] * multiplier
-            });
-
-            colors[Self::DockingEmptyBg as usize] = [0.2, 0.2, 0.2, 1.0];
-        }
-
-        colors
+        let mut style = Style::default();
+        style.use_light_colors();
+        style.colors
     }
 
     /// Returns the "Classic" style colors for ImGui as an array. ImGui now uses
@@ -787,93 +595,9 @@ impl StyleColor {
     ///
     /// You can set this output to [`Style::colors`] to change the style palette.
     pub fn classic_colors() -> [[f32; 4]; StyleColor::COUNT] {
-        let mut colors = [Default::default(); StyleColor::COUNT];
-
-        colors[Self::Text as usize] = [0.90, 0.90, 0.90, 1.00];
-        colors[Self::TextDisabled as usize] = [0.60, 0.60, 0.60, 1.00];
-        colors[Self::WindowBg as usize] = [0.00, 0.00, 0.00, 0.85];
-        colors[Self::ChildBg as usize] = [0.00, 0.00, 0.00, 0.00];
-        colors[Self::PopupBg as usize] = [0.11, 0.11, 0.14, 0.92];
-        colors[Self::Border as usize] = [0.50, 0.50, 0.50, 0.50];
-        colors[Self::BorderShadow as usize] = [0.00, 0.00, 0.00, 0.00];
-        colors[Self::FrameBg as usize] = [0.43, 0.43, 0.43, 0.39];
-        colors[Self::FrameBgHovered as usize] = [0.47, 0.47, 0.69, 0.40];
-        colors[Self::FrameBgActive as usize] = [0.42, 0.41, 0.64, 0.69];
-        colors[Self::TitleBg as usize] = [0.27, 0.27, 0.54, 0.83];
-        colors[Self::TitleBgActive as usize] = [0.32, 0.32, 0.63, 0.87];
-        colors[Self::TitleBgCollapsed as usize] = [0.40, 0.40, 0.80, 0.20];
-        colors[Self::MenuBarBg as usize] = [0.40, 0.40, 0.55, 0.80];
-        colors[Self::ScrollbarBg as usize] = [0.20, 0.25, 0.30, 0.60];
-        colors[Self::ScrollbarGrab as usize] = [0.40, 0.40, 0.80, 0.30];
-        colors[Self::ScrollbarGrabHovered as usize] = [0.40, 0.40, 0.80, 0.40];
-        colors[Self::ScrollbarGrabActive as usize] = [0.41, 0.39, 0.80, 0.60];
-        colors[Self::CheckMark as usize] = [0.90, 0.90, 0.90, 0.50];
-        colors[Self::SliderGrab as usize] = [1.00, 1.00, 1.00, 0.30];
-        colors[Self::SliderGrabActive as usize] = [0.41, 0.39, 0.80, 0.60];
-        colors[Self::Button as usize] = [0.35, 0.40, 0.61, 0.62];
-        colors[Self::ButtonHovered as usize] = [0.40, 0.48, 0.71, 0.79];
-        colors[Self::ButtonActive as usize] = [0.46, 0.54, 0.80, 1.00];
-        colors[Self::Header as usize] = [0.40, 0.40, 0.90, 0.45];
-        colors[Self::HeaderHovered as usize] = [0.45, 0.45, 0.90, 0.80];
-        colors[Self::HeaderActive as usize] = [0.53, 0.53, 0.87, 0.80];
-        colors[Self::Separator as usize] = [0.50, 0.50, 0.50, 0.60];
-        colors[Self::SeparatorHovered as usize] = [0.60, 0.60, 0.70, 1.00];
-        colors[Self::SeparatorActive as usize] = [0.70, 0.70, 0.90, 1.00];
-        colors[Self::ResizeGrip as usize] = [1.00, 1.00, 1.00, 0.10];
-        colors[Self::ResizeGripHovered as usize] = [0.78, 0.82, 1.00, 0.60];
-        colors[Self::ResizeGripActive as usize] = [0.78, 0.82, 1.00, 0.90];
-        colors[Self::TabHovered as usize] = colors[Self::HeaderHovered as usize];
-        colors[Self::Tab as usize] = lerp(
-            colors[Self::Header as usize],
-            colors[Self::TitleBgActive as usize],
-            0.80,
-        );
-        colors[Self::TabSelected as usize] = lerp(
-            colors[Self::HeaderActive as usize],
-            colors[Self::TitleBgActive as usize],
-            0.60,
-        );
-        colors[Self::TabSelectedOverline as usize] = colors[Self::HeaderActive as usize];
-        colors[Self::TabDimmed as usize] = lerp(
-            colors[Self::Tab as usize],
-            colors[Self::TitleBg as usize],
-            0.80,
-        );
-        colors[Self::TabDimmedSelected as usize] = lerp(
-            colors[Self::TabSelected as usize],
-            colors[Self::TitleBg as usize],
-            0.40,
-        );
-        colors[Self::TabDimmedSelectedOverline as usize] = colors[Self::HeaderActive as usize];
-        colors[Self::PlotLines as usize] = [1.00, 1.00, 1.00, 1.00];
-        colors[Self::PlotLinesHovered as usize] = [0.90, 0.70, 0.00, 1.00];
-        colors[Self::PlotHistogram as usize] = [0.90, 0.70, 0.00, 1.00];
-        colors[Self::PlotHistogramHovered as usize] = [1.00, 0.60, 0.00, 1.00];
-        colors[Self::TableHeaderBg as usize] = [0.27, 0.27, 0.38, 1.00];
-        colors[Self::TableBorderStrong as usize] = [0.31, 0.31, 0.45, 1.00];
-        colors[Self::TableBorderLight as usize] = [0.26, 0.26, 0.28, 1.00];
-        colors[Self::TableRowBg as usize] = [0.00, 0.00, 0.00, 0.00];
-        colors[Self::TableRowBgAlt as usize] = [1.00, 1.00, 1.00, 0.07];
-        colors[Self::TextLink as usize] = colors[Self::HeaderActive as usize];
-        colors[Self::TextSelectedBg as usize] = [0.00, 0.00, 1.00, 0.35];
-        colors[Self::DragDropTarget as usize] = [1.00, 1.00, 0.00, 0.90];
-        colors[Self::NavHighlight as usize] = colors[Self::HeaderHovered as usize];
-        colors[Self::NavWindowingHighlight as usize] = [1.00, 1.00, 1.00, 0.70];
-        colors[Self::NavWindowingDimBg as usize] = [0.80, 0.80, 0.80, 0.20];
-        colors[Self::ModalWindowDimBg as usize] = [0.20, 0.20, 0.20, 0.35];
-
-        #[cfg(feature = "docking")]
-        {
-            colors[Self::DockingPreview as usize] = std::array::from_fn(|idx| {
-                let multiplier = if idx == 3 { 0.7 } else { 1.0 };
-
-                colors[Self::Header as usize][idx] * multiplier
-            });
-
-            colors[Self::DockingEmptyBg as usize] = [0.2, 0.2, 0.2, 1.0];
-        }
-
-        colors
+        let mut style = Style::default();
+        style.use_classic_colors();
+        style.colors
     }
 }
 
@@ -967,11 +691,6 @@ pub enum StyleVar {
     CellPadding([f32; 2]),
 }
 
-// lerps a color with the given value
-fn lerp(a: [f32; 4], b: [f32; 4], t: f32) -> [f32; 4] {
-    std::array::from_fn(|i| a[i] + (b[i] - a[i]) * t)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1052,11 +771,15 @@ mod tests {
                 );
             };
         }
+        assert_field_offset!(font_size_base, FontSizeBase);
+        assert_field_offset!(font_scale_main, FontScaleMain);
+        assert_field_offset!(font_scale_dpi, FontScaleDpi);
         assert_field_offset!(alpha, Alpha);
         assert_field_offset!(disabled_alpha, DisabledAlpha);
         assert_field_offset!(window_padding, WindowPadding);
         assert_field_offset!(window_rounding, WindowRounding);
         assert_field_offset!(window_border_size, WindowBorderSize);
+        assert_field_offset!(window_border_hover_padding, WindowBorderHoverPadding);
         assert_field_offset!(window_min_size, WindowMinSize);
         assert_field_offset!(window_title_align, WindowTitleAlign);
         assert_field_offset!(window_menu_button_position, WindowMenuButtonPosition);
@@ -1075,15 +798,37 @@ mod tests {
         assert_field_offset!(columns_min_spacing, ColumnsMinSpacing);
         assert_field_offset!(scrollbar_size, ScrollbarSize);
         assert_field_offset!(scrollbar_rounding, ScrollbarRounding);
+        assert_field_offset!(scrollbar_padding, ScrollbarPadding);
         assert_field_offset!(grab_min_size, GrabMinSize);
         assert_field_offset!(grab_rounding, GrabRounding);
         assert_field_offset!(log_slider_deadzone, LogSliderDeadzone);
+        assert_field_offset!(image_border_size, ImageBorderSize);
         assert_field_offset!(tab_rounding, TabRounding);
         assert_field_offset!(tab_border_size, TabBorderSize);
-        assert_field_offset!(tab_min_width_for_close_button, TabMinWidthForCloseButton);
+        assert_field_offset!(tab_min_width_base, TabMinWidthBase);
+        assert_field_offset!(tab_min_width_shrink, TabMinWidthShrink);
+        assert_field_offset!(tab_close_button_min_width_selected, TabCloseButtonMinWidthSelected);
+        assert_field_offset!(
+            tab_close_button_min_width_unselected,
+            TabCloseButtonMinWidthUnselected
+        );
+        assert_field_offset!(tab_bar_border_size, TabBarBorderSize);
+        assert_field_offset!(tab_bar_overline_size, TabBarOverlineSize);
+        assert_field_offset!(table_angled_headers_angle, TableAngledHeadersAngle);
+        assert_field_offset!(table_angled_headers_text_align, TableAngledHeadersTextAlign);
+        assert_field_offset!(tree_lines_flags, TreeLinesFlags);
+        assert_field_offset!(tree_lines_size, TreeLinesSize);
+        assert_field_offset!(tree_lines_rounding, TreeLinesRounding);
+        assert_field_offset!(drag_drop_target_rounding, DragDropTargetRounding);
+        assert_field_offset!(drag_drop_target_border_size, DragDropTargetBorderSize);
+        assert_field_offset!(drag_drop_target_padding, DragDropTargetPadding);
+        assert_field_offset!(color_marker_size, ColorMarkerSize);
         assert_field_offset!(color_button_position, ColorButtonPosition);
         assert_field_offset!(button_text_align, ButtonTextAlign);
         assert_field_offset!(selectable_text_align, SelectableTextAlign);
+        assert_field_offset!(separator_text_border_size, SeparatorTextBorderSize);
+        assert_field_offset!(separator_text_align, SeparatorTextAlign);
+        assert_field_offset!(separator_text_padding, SeparatorTextPadding);
         assert_field_offset!(display_window_padding, DisplayWindowPadding);
         assert_field_offset!(display_safe_area_padding, DisplaySafeAreaPadding);
         assert_field_offset!(mouse_cursor_scale, MouseCursorScale);
@@ -1093,9 +838,13 @@ mod tests {
         assert_field_offset!(curve_tessellation_tol, CurveTessellationTol);
         assert_field_offset!(circle_tesselation_max_error, CircleTessellationMaxError);
         assert_field_offset!(colors, Colors);
-
-        #[cfg(feature = "docking")]
-        assert_field_offset!(docking_separator_size, DockingSeparatorSize);
+        assert_field_offset!(hover_stationary_delay, HoverStationaryDelay);
+        assert_field_offset!(hover_delay_short, HoverDelayShort);
+        assert_field_offset!(hover_delay_normal, HoverDelayNormal);
+        assert_field_offset!(hover_flags_for_tooltip_mouse, HoverFlagsForTooltipMouse);
+        assert_field_offset!(hover_flags_for_tooltip_nav, HoverFlagsForTooltipNav);
+        assert_field_offset!(main_scale, _MainScale);
+        assert_field_offset!(next_frame_font_size_base, _NextFrameFontSizeBase);
     }
 
     #[test]
