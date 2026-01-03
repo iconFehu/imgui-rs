@@ -24,14 +24,16 @@ use std::ptr;
 
 bitflags! {
     #[repr(transparent)]
-    pub struct TabBarFlags: u32 {
+    pub struct TabBarFlags: i32 {
         const REORDERABLE = sys::ImGuiTabBarFlags_Reorderable;
         const AUTO_SELECT_NEW_TABS = sys::ImGuiTabBarFlags_AutoSelectNewTabs;
         const TAB_LIST_POPUP_BUTTON = sys::ImGuiTabBarFlags_TabListPopupButton;
         const NO_CLOSE_WITH_MIDDLE_MOUSE_BUTTON = sys::ImGuiTabBarFlags_NoCloseWithMiddleMouseButton;
         const NO_TAB_LIST_SCROLLING_BUTTONS = sys::ImGuiTabBarFlags_NoTabListScrollingButtons;
         const NO_TOOLTIP = sys::ImGuiTabBarFlags_NoTooltip;
-        const FITTING_POLICY_RESIZE_DOWN = sys::ImGuiTabBarFlags_FittingPolicyResizeDown;
+        const DRAW_SELECTED_OVERLINE = sys::ImGuiTabBarFlags_DrawSelectedOverline;
+        const FITTING_POLICY_MIXED = sys::ImGuiTabBarFlags_FittingPolicyMixed;
+        const FITTING_POLICY_SHRINK = sys::ImGuiTabBarFlags_FittingPolicyShrink;
         const FITTING_POLICY_SCROLL = sys::ImGuiTabBarFlags_FittingPolicyScroll;
         const FITTING_POLICY_MASK = sys::ImGuiTabBarFlags_FittingPolicyMask_;
         const FITTING_POLICY_DEFAULT = sys::ImGuiTabBarFlags_FittingPolicyDefault_;
@@ -40,7 +42,7 @@ bitflags! {
 
 bitflags! {
     #[repr(transparent)]
-    pub struct TabItemFlags: u32 {
+    pub struct TabItemFlags: i32 {
         const UNSAVED_DOCUMENT = sys::ImGuiTabItemFlags_UnsavedDocument;
         const SET_SELECTED = sys::ImGuiTabItemFlags_SetSelected;
         const NO_CLOSE_WITH_MIDDLE_MOUSE_BUTTON = sys::ImGuiTabItemFlags_NoCloseWithMiddleMouseButton;

@@ -110,7 +110,7 @@ pub enum ColorPreview {
 bitflags! {
     /// Color edit flags
     #[repr(transparent)]
-    pub struct ColorEditFlags: u32 {
+    pub struct ColorEditFlags: i32 {
         /// ColorEdit, ColorPicker, ColorButton: ignore Alpha component (read only 3 components of
         /// the value).
         const NO_ALPHA = sys::ImGuiColorEditFlags_NoAlpha;
@@ -141,7 +141,7 @@ bitflags! {
         const ALPHA_BAR = sys::ImGuiColorEditFlags_AlphaBar;
         /// ColorEdit, ColorPicker, ColorButton: display preview as a transparent color over a
         /// checkerboard, instead of opaque.
-        const ALPHA_PREVIEW = sys::ImGuiColorEditFlags_AlphaPreview;
+        const ALPHA_PREVIEW = sys::ImGuiColorEditFlags_AlphaPreviewHalf;
         /// ColorEdit, ColorPicker, ColorButton: display half opaque / half checkerboard, instead
         /// of opaque.
         const ALPHA_PREVIEW_HALF = sys::ImGuiColorEditFlags_AlphaPreviewHalf;
