@@ -2,7 +2,7 @@ use crate::sys;
 use crate::Ui;
 
 /// A key identifier
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
 #[allow(missing_docs)] // Self-describing
 #[non_exhaustive]
@@ -126,6 +126,7 @@ pub enum Key {
     KeypadEqual = sys::ImGuiKey_KeypadEqual,
     AppBack = sys::ImGuiKey_AppBack,
     AppForward = sys::ImGuiKey_AppForward,
+    Oem102 = sys::ImGuiKey_Oem102,
     GamepadStart = sys::ImGuiKey_GamepadStart,
     GamepadBack = sys::ImGuiKey_GamepadBack,
     GamepadFaceLeft = sys::ImGuiKey_GamepadFaceLeft,
@@ -157,6 +158,10 @@ pub enum Key {
     MouseX2 = sys::ImGuiKey_MouseX2,
     MouseWheelX = sys::ImGuiKey_MouseWheelX,
     MouseWheelY = sys::ImGuiKey_MouseWheelY,
+    ReservedForModCtrl = sys::ImGuiKey_ReservedForModCtrl,
+    ReservedForModShift = sys::ImGuiKey_ReservedForModShift,
+    ReservedForModAlt = sys::ImGuiKey_ReservedForModAlt,
+    ReservedForModSuper = sys::ImGuiKey_ReservedForModSuper,
 
     ModCtrl = sys::ImGuiMod_Ctrl,
     ModShift = sys::ImGuiMod_Shift,
@@ -286,6 +291,7 @@ impl Key {
         Key::KeypadEqual,
         Key::AppBack,
         Key::AppForward,
+        Key::Oem102,
         Key::GamepadStart,
         Key::GamepadBack,
         Key::GamepadFaceLeft,
@@ -317,13 +323,17 @@ impl Key {
         Key::MouseX2,
         Key::MouseWheelX,
         Key::MouseWheelY,
+        Key::ReservedForModCtrl,
+        Key::ReservedForModShift,
+        Key::ReservedForModAlt,
+        Key::ReservedForModSuper,
         Key::ModCtrl,
         Key::ModShift,
         Key::ModAlt,
         Key::ModSuper,
     ];
     /// Total count of `Key` variants
-    pub const COUNT: usize = sys::ImGuiKey_NamedKey_COUNT as usize;
+    pub const COUNT: usize = sys::ImGuiKey_NamedKey_COUNT as usize + 4;
 }
 
 /// Target widget selection for keyboard focus
@@ -358,9 +368,9 @@ impl Ui {
     pub fn is_key_down(&self, key: Key) -> bool {
         cfg_if::cfg_if! {
             if #[cfg(feature = "docking")] {
-                unsafe { sys::igIsKeyDown_Nil(key as u32) }
+                unsafe { sys::igIsKeyDown_Nil(key as i32) }
             } else {
-                unsafe { sys::igIsKeyDown(key as u32) }
+                unsafe { sys::igIsKeyDown(key as i32) }
             }
         }
     }
@@ -373,9 +383,9 @@ impl Ui {
     pub fn is_key_pressed(&self, key: Key) -> bool {
         cfg_if::cfg_if! {
             if #[cfg(feature = "docking")] {
-                unsafe { sys::igIsKeyPressed_Bool(key as u32, true) }
+                unsafe { sys::igIsKeyPressed_Bool(key as i32, true) }
             } else {
-                unsafe { sys::igIsKeyPressed(key as u32, true) }
+                unsafe { sys::igIsKeyPressed(key as i32, true) }
             }
         }
     }
@@ -388,9 +398,9 @@ impl Ui {
     pub fn is_key_pressed_no_repeat(&self, key: Key) -> bool {
         cfg_if::cfg_if! {
             if #[cfg(feature = "docking")] {
-                unsafe { sys::igIsKeyPressed_Bool(key as u32, false) }
+                unsafe { sys::igIsKeyPressed_Bool(key as i32, false) }
             } else {
-                unsafe { sys::igIsKeyPressed(key as u32, false) }
+                unsafe { sys::igIsKeyPressed(key as i32, false) }
             }
         }
     }
@@ -401,9 +411,9 @@ impl Ui {
     pub fn is_key_released(&self, key: Key) -> bool {
         cfg_if::cfg_if! {
             if #[cfg(feature = "docking")] {
-                unsafe { sys::igIsKeyReleased_Nil(key as u32) }
+                unsafe { sys::igIsKeyReleased_Nil(key as i32) }
             } else {
-                unsafe { sys::igIsKeyReleased(key as u32) }
+                unsafe { sys::igIsKeyReleased(key as i32) }
             }
         }
     }
@@ -415,7 +425,7 @@ impl Ui {
     #[inline]
     #[doc(alias = "GetKeyPressedAmount")]
     pub fn key_pressed_amount(&self, key: Key, repeat_delay: f32, rate: f32) -> u32 {
-        unsafe { sys::igGetKeyPressedAmount(key as u32, repeat_delay, rate) as u32 }
+        unsafe { sys::igGetKeyPressedAmount(key as i32, repeat_delay, rate) as u32 }
     }
 
     /// Focuses keyboard on the next widget.

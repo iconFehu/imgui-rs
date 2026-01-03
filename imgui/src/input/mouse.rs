@@ -58,6 +58,10 @@ pub enum MouseCursor {
     ResizeNWSE = sys::ImGuiMouseCursor_ResizeNWSE,
     /// Not used automatically, use for e.g. hyperlinks
     Hand = sys::ImGuiMouseCursor_Hand,
+    /// Busy cursor used while action is happening.
+    Wait = sys::ImGuiMouseCursor_Wait,
+    /// Progress cursor.
+    Progress = sys::ImGuiMouseCursor_Progress,
     /// When hovering something with disallowed interactions.
     ///
     /// Usually a crossed circle.
@@ -75,6 +79,8 @@ impl MouseCursor {
         MouseCursor::ResizeNESW,
         MouseCursor::ResizeNWSE,
         MouseCursor::Hand,
+        MouseCursor::Wait,
+        MouseCursor::Progress,
         MouseCursor::NotAllowed,
     ];
     /// Total count of `MouseCursor` variants
@@ -82,7 +88,7 @@ impl MouseCursor {
 }
 
 /// Notates the type and origin of a mouse input.
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
 pub enum MouseSource {
     /// From an normal cursor mouse.
@@ -191,9 +197,7 @@ impl Ui {
     /// Returns the mouse position backed up at the time of opening a popup
     #[doc(alias = "GetMousePosOnOpeningCurrentPopup")]
     pub fn mouse_pos_on_opening_current_popup(&self) -> [f32; 2] {
-        let mut out = sys::ImVec2::zero();
-        unsafe { sys::igGetMousePosOnOpeningCurrentPopup(&mut out) };
-        out.into()
+        unsafe { sys::igGetMousePosOnOpeningCurrentPopup() }.into()
     }
 
     /// Returns the delta from the initial position when the left mouse button clicked.
@@ -226,9 +230,7 @@ impl Ui {
     /// (`io.mouse_drag_threshold`).
     #[doc(alias = "GetMouseDragDelta")]
     pub fn mouse_drag_delta_with_threshold(&self, button: MouseButton, threshold: f32) -> [f32; 2] {
-        let mut out = sys::ImVec2::zero();
-        unsafe { sys::igGetMouseDragDelta(&mut out, button as i32, threshold) };
-        out.into()
+        unsafe { sys::igGetMouseDragDelta(button as i32, threshold) }.into()
     }
     /// Resets the current delta from initial clicking position.
     #[doc(alias = "ResetMouseDragDelta")]
@@ -251,6 +253,8 @@ impl Ui {
             sys::ImGuiMouseCursor_ResizeNESW => Some(MouseCursor::ResizeNESW),
             sys::ImGuiMouseCursor_ResizeNWSE => Some(MouseCursor::ResizeNWSE),
             sys::ImGuiMouseCursor_Hand => Some(MouseCursor::Hand),
+            sys::ImGuiMouseCursor_Wait => Some(MouseCursor::Wait),
+            sys::ImGuiMouseCursor_Progress => Some(MouseCursor::Progress),
             sys::ImGuiMouseCursor_NotAllowed => Some(MouseCursor::NotAllowed),
             _ => None,
         }

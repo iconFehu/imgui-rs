@@ -11,7 +11,7 @@ use crate::Ui;
 bitflags!(
     /// Flags for text inputs
     #[repr(C)]
-    pub struct InputTextFlags: u32 {
+    pub struct InputTextFlags: i32 {
         /// Allow 0123456789.+-*/
         const CHARS_DECIMAL = sys::ImGuiInputTextFlags_CharsDecimal;
         /// Allow 0123456789ABCDEFabcdef
@@ -896,7 +896,7 @@ impl<'ui, 'p, L: AsRef<str>, T: DataTypeKind, F: AsRef<str>> InputScalarN<'ui, '
 bitflags!(
     /// Callback flags for an `InputText` widget. These correspond to
     /// the general textflags.
-    pub struct InputTextCallback: u32 {
+    pub struct InputTextCallback: i32 {
         /// Call user function on pressing TAB (for completion handling)
         const COMPLETION = sys::ImGuiInputTextFlags_CallbackCompletion;
         /// Call user function on pressing Up/Down arrows (for history handling)
@@ -914,7 +914,7 @@ bitflags!(
 bitflags!(
     /// Callback flags for an `InputTextMultiline` widget. These correspond to the
     /// general textflags.
-    pub struct InputTextMultilineCallback: u32 {
+    pub struct InputTextMultilineCallback: i32 {
         /// Call user function on pressing TAB (for completion handling)
         const COMPLETION = sys::ImGuiInputTextFlags_CallbackCompletion;
         /// Call user function every time. User code may query cursor position, modify text buffer.
@@ -1209,13 +1209,13 @@ extern "C" fn callback<T: InputTextCallbackHandler>(
     data: *mut sys::ImGuiInputTextCallbackData,
 ) -> c_int {
     struct CallbackData<'a, T> {
-        event_flag: InputTextFlags,
+            event_flag: InputTextFlags,
         user_data: &'a mut UserData<T>,
     }
 
     let callback_data = unsafe {
         CallbackData {
-            event_flag: InputTextFlags::from_bits((*data).EventFlag as u32).unwrap(),
+            event_flag: InputTextFlags::from_bits((*data).EventFlag as i32).unwrap(),
             user_data: &mut *((*data).UserData as *mut UserData<T>),
         }
     };
@@ -1258,7 +1258,7 @@ extern "C" fn callback<T: InputTextCallbackHandler>(
             }
         }
         InputTextFlags::CALLBACK_CHAR_FILTER => {
-            let chr = unsafe { std::char::from_u32((*data).EventChar).unwrap() };
+            let chr = unsafe { std::char::from_u32((*data).EventChar as u32).unwrap() };
             let new_data = match callback_data.user_data.cback_handler.char_filter(chr) {
                 Some(value) => u32::from(value),
                 // 0 means "do not use this char" in imgui docs
@@ -1266,7 +1266,7 @@ extern "C" fn callback<T: InputTextCallbackHandler>(
             };
             // set the new char...
             unsafe {
-                (*data).EventChar = new_data;
+                (*data).EventChar = u16::try_from(new_data).unwrap_or(0);
             }
         }
         InputTextFlags::CALLBACK_HISTORY => {
