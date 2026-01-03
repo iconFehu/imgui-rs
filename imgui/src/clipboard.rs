@@ -101,7 +101,6 @@ pub(crate) unsafe extern "C" fn set_clipboard_text(
 }
 
 /// # Clipboard
-#[allow(clippy::fn_address_comparisons)] // This is allowed because although function addresses wont be unique, we just care if its OURS
 impl Ui {
     /// Returns the current clipboard contents as text, or None if the clipboard is empty or cannot
     /// be accessed
@@ -112,7 +111,10 @@ impl Ui {
 
         current_clipboard_text_fn.and_then(|get_clipboard_text_fn| {
             // Bypass FFI if we end up calling our own function anyway
-            if get_clipboard_text_fn == get_clipboard_text {
+            if std::ptr::fn_addr_eq(
+                get_clipboard_text_fn,
+                get_clipboard_text as unsafe extern "C" fn(*mut sys::ImGuiContext) -> *const c_char,
+            ) {
                 let ctx = unsafe {
                     &mut *((*platform_io).Platform_ClipboardUserData as *mut ClipboardContext)
                 };
@@ -145,7 +147,11 @@ impl Ui {
 
         if let Some(set_clipboard_text_fn) = set_clipboard_text_fn {
             // Bypass FFI if we end up calling our own function anyway
-            if set_clipboard_text_fn == set_clipboard_text {
+            if std::ptr::fn_addr_eq(
+                set_clipboard_text_fn,
+                set_clipboard_text
+                    as unsafe extern "C" fn(*mut sys::ImGuiContext, *const c_char),
+            ) {
                 let ctx = unsafe {
                     &mut *((*platform_io).Platform_ClipboardUserData as *mut ClipboardContext)
                 };
