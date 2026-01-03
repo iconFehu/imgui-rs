@@ -215,7 +215,7 @@ impl Context {
         let platform_io = unsafe {
             // safe because PlatformIo is a transparent wrapper around sys::ImGuiPlatformIO
             // and &mut self ensures exclusive ownership of PlatformIo.
-            &mut *(sys::igGetPlatformIO() as *mut crate::PlatformIo)
+            &mut *(crate::ig_get_platform_io() as *mut crate::PlatformIo)
         };
         platform_io.set_clipboard_text_fn = Some(crate::clipboard::set_clipboard_text);
         platform_io.get_clipboard_text_fn = Some(crate::clipboard::get_clipboard_text);
@@ -484,14 +484,14 @@ impl Context {
     pub fn io(&self) -> &Io {
         unsafe {
             // safe because Io is a transparent wrapper around sys::ImGuiIO
-            &*(sys::igGetIO() as *const Io)
+            &*(crate::ig_get_io() as *const Io)
         }
     }
     /// Returns a mutable reference to the inputs/outputs object
     pub fn io_mut(&mut self) -> &mut Io {
         unsafe {
             // safe because Io is a transparent wrapper around sys::ImGuiIO
-            &mut *(sys::igGetIO() as *mut Io)
+            &mut *(crate::ig_get_io() as *mut Io)
         }
     }
 
@@ -592,7 +592,7 @@ impl Context {
         unsafe {
             // safe because PlatformIo is a transparent wrapper around sys::ImGuiPlatformIO
             // and &self ensures we have shared ownership of PlatformIo.
-            &*(sys::igGetPlatformIO() as *const crate::PlatformIo)
+            &*(crate::ig_get_platform_io() as *const crate::PlatformIo)
         }
     }
     /// Returns a mutable reference to the Context's [`PlatformIo`](crate::PlatformIo) object.
@@ -600,7 +600,7 @@ impl Context {
         unsafe {
             // safe because PlatformIo is a transparent wrapper around sys::ImGuiPlatformIO
             // and &mut self ensures exclusive ownership of PlatformIo.
-            &mut *(sys::igGetPlatformIO() as *mut crate::PlatformIo)
+            &mut *(crate::ig_get_platform_io() as *mut crate::PlatformIo)
         }
     }
 

@@ -138,6 +138,30 @@ pub use self::window::*;
 use internal::RawCast;
 use math::*;
 
+#[inline]
+pub(crate) unsafe fn ig_get_io() -> *mut sys::ImGuiIO {
+    #[cfg(feature = "docking")]
+    {
+        sys::igGetIO_ContextPtr(sys::igGetCurrentContext())
+    }
+    #[cfg(not(feature = "docking"))]
+    {
+        sys::igGetIO()
+    }
+}
+
+#[inline]
+pub(crate) unsafe fn ig_get_platform_io() -> *mut sys::ImGuiPlatformIO {
+    #[cfg(feature = "docking")]
+    {
+        sys::igGetPlatformIO_ContextPtr(sys::igGetCurrentContext())
+    }
+    #[cfg(not(feature = "docking"))]
+    {
+        sys::igGetPlatformIO()
+    }
+}
+
 #[macro_use]
 mod string;
 
@@ -276,7 +300,7 @@ impl Ui {
     /// Returns an immutable reference to the inputs/outputs object
     #[doc(alias = "GetIO")]
     pub fn io(&self) -> &Io {
-        unsafe { &*(sys::igGetIO() as *const Io) }
+        unsafe { &*(crate::ig_get_io() as *const Io) }
     }
 
     /// Returns an immutable reference to the font atlas.
