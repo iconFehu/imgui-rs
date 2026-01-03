@@ -1,5 +1,3 @@
-use std::os::raw::c_void;
-
 use crate::math::MintVec2;
 use crate::math::MintVec4;
 use crate::render::renderer::TextureId;
@@ -60,14 +58,23 @@ impl Image {
     /// Builds the image
     pub fn build(self, _: &Ui) {
         unsafe {
-            sys::igImage(
-                self.texture_id.id() as *mut c_void,
-                self.size.into(),
-                self.uv0.into(),
-                self.uv1.into(),
-                self.tint_col.into(),
-                self.border_col.into(),
-            );
+            let tex_ref = self.texture_id.to_im_texture_ref();
+            let size = self.size.into();
+            let uv0 = self.uv0.into();
+            let uv1 = self.uv1.into();
+            if self.tint_col != [1.0, 1.0, 1.0, 1.0] || self.border_col != [0.0, 0.0, 0.0, 0.0]
+            {
+                sys::igImageWithBg(
+                    tex_ref,
+                    size,
+                    uv0,
+                    uv1,
+                    self.border_col.into(),
+                    self.tint_col.into(),
+                );
+            } else {
+                sys::igImage(tex_ref, size, uv0, uv1);
+            }
         }
     }
 }
@@ -167,7 +174,7 @@ impl<'ui, StrId: AsRef<str>> ImageButton<'ui, StrId> {
         unsafe {
             sys::igImageButton(
                 self.ui.scratch_txt(self.str_id),
-                self.texture_id.id() as *mut c_void,
+                self.texture_id.to_im_texture_ref(),
                 self.size.into(),
                 self.uv0.into(),
                 self.uv1.into(),
@@ -228,7 +235,7 @@ impl ImageButtonDeprecated {
 
             let res = sys::igImageButton(
                 b"#image".as_ptr().cast(),
-                self.texture_id.id() as *mut c_void,
+                self.texture_id.to_im_texture_ref(),
                 self.size.into(),
                 self.uv0.into(),
                 self.uv1.into(),
