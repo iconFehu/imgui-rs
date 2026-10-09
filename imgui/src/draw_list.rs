@@ -47,15 +47,15 @@ bitflags!(
     pub struct DrawListFlags: i32 {
         /// Enable anti-aliased lines/borders (*2 the number of triangles for 1.0f wide line or lines
         /// thin enough to be drawn using textures, otherwise *3 the number of triangles)
-        const ANTI_ALIASED_LINES = sys::ImDrawListFlags_AntiAliasedLines;
+        const ANTI_ALIASED_LINES = sys::ImDrawListFlags_AntiAliasedLines as i32;
         /// Enable anti-aliased lines/borders using textures when possible. Require backend to render
         /// with bilinear filtering.
-        const ANTI_ALIASED_LINES_USE_TEX = sys::ImDrawListFlags_AntiAliasedLinesUseTex;
+        const ANTI_ALIASED_LINES_USE_TEX = sys::ImDrawListFlags_AntiAliasedLinesUseTex as i32;
         /// Enable anti-aliased edge around filled shapes (rounded rectangles, circles).
-        const ANTI_ALIASED_FILL = sys::ImDrawListFlags_AntiAliasedFill;
+        const ANTI_ALIASED_FILL = sys::ImDrawListFlags_AntiAliasedFill as i32;
         /// Can emit 'VtxOffset > 0' to allow large meshes. Set when
         /// [`BackendFlags::RENDERER_HAS_VTX_OFFSET`] is enabled.
-        const ALLOW_VTX_OFFSET = sys::ImDrawListFlags_AllowVtxOffset;
+        const ALLOW_VTX_OFFSET = sys::ImDrawListFlags_AllowVtxOffset as i32;
     }
 );
 
@@ -581,8 +581,8 @@ impl<'ui> Polyline<'ui> {
                     self.points.as_ptr() as *const sys::ImVec2,
                     self.points.len() as i32,
                     self.color.into(),
-                    sys::ImDrawFlags::default(),
                     self.thickness,
+                    sys::ImDrawFlags::default(),
                 )
             }
         }
@@ -688,8 +688,8 @@ impl<'ui> Rect<'ui> {
                     self.p2.into(),
                     self.color.into(),
                     self.rounding,
-                    self.flags.bits() as i32,
                     self.thickness,
+                    self.flags.bits() as i32,
                 );
             }
         }

@@ -18,32 +18,32 @@ bitflags! {
         /// Master keyboard navigation enable flag.
         ///
         /// `frame()` will automatically fill `io.nav_inputs` based on `io.keys_down`.
-        const NAV_ENABLE_KEYBOARD = sys::ImGuiConfigFlags_NavEnableKeyboard;
+        const NAV_ENABLE_KEYBOARD = sys::ImGuiConfigFlags_NavEnableKeyboard as i32;
         /// Master gamepad navigation enable flag.
         ///
         /// This is mostly to instruct the backend to fill `io.nav_inputs`. The backend
         /// also needs to set `BackendFlags::HasGamepad`.
-        const NAV_ENABLE_GAMEPAD = sys::ImGuiConfigFlags_NavEnableGamepad;
+        const NAV_ENABLE_GAMEPAD = sys::ImGuiConfigFlags_NavEnableGamepad as i32;
         /// Instruction imgui-rs to clear mouse position/buttons in `frame()`.
         ///
         /// This allows ignoring the mouse information set by the backend.
-        const NO_MOUSE = sys::ImGuiConfigFlags_NoMouse;
+        const NO_MOUSE = sys::ImGuiConfigFlags_NoMouse as i32;
         /// Instruction backend to not alter mouse cursor shape and visibility.
         ///
         /// Use if the backend cursor changes are interfering with yours and you don't want to use
         /// `set_mouse_cursor` to change the mouse cursor. You may want to honor requests from
         /// imgui-rs by reading `get_mouse_cursor` yourself instead.
-        const NO_MOUSE_CURSOR_CHANGE = sys::ImGuiConfigFlags_NoMouseCursorChange;
+        const NO_MOUSE_CURSOR_CHANGE = sys::ImGuiConfigFlags_NoMouseCursorChange as i32;
         /// Instruction imgui-rs to disable keyboard navigation.
-        const NO_KEYBOARD = sys::ImGuiConfigFlags_NoKeyboard;
+        const NO_KEYBOARD = sys::ImGuiConfigFlags_NoKeyboard as i32;
         /// Application is SRGB-aware.
         ///
         /// Not used by core imgui-rs.
-        const IS_SRGB = sys::ImGuiConfigFlags_IsSRGB;
+        const IS_SRGB = sys::ImGuiConfigFlags_IsSRGB as i32;
         /// Application is using a touch screen instead of a mouse.
         ///
         /// Not used by core imgui-rs.
-        const IS_TOUCH_SCREEN = sys::ImGuiConfigFlags_IsTouchScreen;
+        const IS_TOUCH_SCREEN = sys::ImGuiConfigFlags_IsTouchScreen as i32;
 
     }
 }
@@ -51,9 +51,9 @@ bitflags! {
 bitflags! {
     #[repr(transparent)]
     pub struct ViewportFlags: i32 {
-        const IS_PLATFORM_WINDOW = sys::ImGuiViewportFlags_IsPlatformWindow;
-        const IS_PLATFORM_MONITOR = sys::ImGuiViewportFlags_IsPlatformMonitor;
-        const OWNED_BY_APP = sys::ImGuiViewportFlags_OwnedByApp;
+        const IS_PLATFORM_WINDOW = sys::ImGuiViewportFlags_IsPlatformWindow as i32;
+        const IS_PLATFORM_MONITOR = sys::ImGuiViewportFlags_IsPlatformMonitor as i32;
+        const OWNED_BY_APP = sys::ImGuiViewportFlags_OwnedByApp as i32;
     }
 }
 
@@ -62,18 +62,18 @@ bitflags! {
     #[repr(transparent)]
     pub struct BackendFlags: i32 {
         /// Backend supports gamepad and currently has one connected
-        const HAS_GAMEPAD = sys::ImGuiBackendFlags_HasGamepad;
+        const HAS_GAMEPAD = sys::ImGuiBackendFlags_HasGamepad as i32;
         /// Backend supports honoring `get_mouse_cursor` value to change the OS cursor shape
-        const HAS_MOUSE_CURSORS = sys::ImGuiBackendFlags_HasMouseCursors;
+        const HAS_MOUSE_CURSORS = sys::ImGuiBackendFlags_HasMouseCursors as i32;
         /// Backend supports `io.want_set_mouse_pos` requests to reposition the OS mouse position.
-        const HAS_SET_MOUSE_POS = sys::ImGuiBackendFlags_HasSetMousePos;
+        const HAS_SET_MOUSE_POS = sys::ImGuiBackendFlags_HasSetMousePos as i32;
         /// Backend renderer supports DrawCmd::vtx_offset.
         ///
         /// This enables output of large meshes (64K+ vertices) while still using 16-bits indices.
-        const RENDERER_HAS_VTX_OFFSET = sys::ImGuiBackendFlags_RendererHasVtxOffset;
+        const RENDERER_HAS_VTX_OFFSET = sys::ImGuiBackendFlags_RendererHasVtxOffset as i32;
 
         /// Backend renderer supports ImTextureData textures.
-        const RENDERER_HAS_TEXTURES = sys::ImGuiBackendFlags_RendererHasTextures;
+        const RENDERER_HAS_TEXTURES = sys::ImGuiBackendFlags_RendererHasTextures as i32;
     }
 }
 
@@ -120,45 +120,43 @@ pub struct Io {
     /// Always display navigation cursor.
     pub config_nav_cursor_visible_always: bool,
 
-    /// Avoid splitting nodes when docking.
+    /// Docking: Avoid splitting nodes when docking.
     #[cfg(feature = "docking")]
     pub config_docking_no_split: bool,
-    /// Disable docking over existing windows.
+    /// Docking: Disable docking over existing windows.
     #[cfg(feature = "docking")]
     pub config_docking_no_docking_over: bool,
-    /// Hold Shift to dock windows.
+    /// Docking: Hold Shift to dock windows.
     #[cfg(feature = "docking")]
     pub config_docking_with_shift: bool,
-    /// Always show the docking tab bar.
+    /// Docking: Always show the docking tab bar.
     #[cfg(feature = "docking")]
     pub config_docking_always_tab_bar: bool,
-    /// Enable transparent payload when docking.
+    /// Docking: Enable transparent payload when docking.
     #[cfg(feature = "docking")]
     pub config_docking_transparent_payload: bool,
-    /// Avoid merging viewports when not necessary.
+    /// Docking: Avoid merging viewports when not necessary.
     #[cfg(feature = "docking")]
     pub config_viewports_no_auto_merge: bool,
-    /// Disable task bar icons for viewports.
+    /// Docking: Disable task bar icons for viewports.
     #[cfg(feature = "docking")]
     pub config_viewports_no_task_bar_icon: bool,
-    /// Disable window decorations for viewports.
+    /// Docking: Disable window decorations for viewports.
     #[cfg(feature = "docking")]
     pub config_viewports_no_decoration: bool,
-    /// Avoid using the default parent viewport.
+    /// Docking: Avoid using the default parent viewport.
     #[cfg(feature = "docking")]
     pub config_viewports_no_default_parent: bool,
-    /// Focus ImGui when the platform window gains focus.
+    /// Docking: Focus ImGui when the platform window gains focus.
     #[cfg(feature = "docking")]
     pub config_viewports_platform_focus_sets_imgui_focus: bool,
-    /// Scale fonts when viewports are scaled.
+    /// Docking: Scale fonts when viewports are scaled.
     #[cfg(feature = "docking")]
     pub config_dpi_scale_fonts: bool,
-    /// Scale viewports for DPI.
+    /// Docking: Scale viewports for DPI.
     #[cfg(feature = "docking")]
     pub config_dpi_scale_viewports: bool,
 
-    /// Request imgui-rs to draw a mouse cursor for you
-    pub mouse_draw_cursor: bool,
     /// macOS-style input behavior.
     pub config_mac_os_behaviors: bool,
 
@@ -169,6 +167,7 @@ pub struct Io {
     pub config_input_text_cursor_blink: bool,
     /// Pressing Enter will keep item active and select contents (single-line only).
     pub config_input_text_enter_keep_active: bool,
+    config_color_edit_flags: sys::ImGuiColorEditFlags,
     /// Enable turning DragXXX widgets into text input with a simple mouse
     /// click-release (without moving). Not desirable on devices without a
     /// keyboard.
@@ -181,6 +180,11 @@ pub struct Io {
     pub config_windows_copy_contents_with_ctrl_c: bool,
     /// Enable scrolling page by page when clicking outside the scrollbar grab.
     pub config_scrollbar_scroll_by_page: bool,
+    config_ini_settings_save_last_used_date: bool,
+    config_ini_settings_auto_discard_months: i32,
+    config_debug_ini_settings: bool,
+    /// Request imgui-rs to draw a mouse cursor for you
+    pub mouse_draw_cursor: bool,
     /// Compact memory usage when unused.
     pub config_memory_compact_timer: f32,
 
@@ -188,6 +192,8 @@ pub struct Io {
     pub mouse_double_click_time: f32,
     /// Distance threshold to stay in to validate a double-click, in pixels
     pub mouse_double_click_max_dist: f32,
+    /// Delay for detecting single-click vs double-click, in seconds
+    pub mouse_single_click_delay: f32,
     /// Distance threshold before considering we are dragging
     pub mouse_drag_threshold: f32,
     /// When holding a key/button, time before it starts repeating, in seconds
@@ -206,7 +212,6 @@ pub struct Io {
     pub config_debug_begin_return_value_once: bool,
     pub config_debug_begin_return_value_loop: bool,
     pub config_debug_ignore_focus_loss: bool,
-    pub config_debug_ini_settings: bool,
 
     pub(crate) backend_platform_name: *const c_char,
     pub(crate) backend_renderer_name: *const c_char,
@@ -358,7 +363,7 @@ impl Io {
 
     pub fn add_key_event(&mut self, key: Key, down: bool) {
         unsafe {
-            sys::ImGuiIO_AddKeyEvent(self.raw_mut(), key as i32, down);
+            sys::ImGuiIO_AddKeyEvent(self.raw_mut(), key as u32, down);
         }
     }
 
@@ -373,7 +378,7 @@ impl Io {
 
     pub fn add_key_analog_event(&mut self, key: Key, down: bool, value: f32) {
         unsafe {
-            sys::ImGuiIO_AddKeyAnalogEvent(self.raw_mut(), key as i32, down, value);
+            sys::ImGuiIO_AddKeyAnalogEvent(self.raw_mut(), key as u32, down, value);
         }
     }
 }
@@ -425,6 +430,9 @@ fn test_io_memory_layout() {
             assert_field_offset!(fonts, Fonts);
             assert_field_offset!(font_default, FontDefault);
             assert_field_offset!(font_allow_user_scaling, FontAllowUserScaling);
+            assert_field_offset!(config_color_edit_flags, ConfigColorEditFlags);
+            assert_field_offset!(config_ini_settings_save_last_used_date, ConfigIniSettingsSaveLastUsedDate);
+            assert_field_offset!(config_ini_settings_auto_discard_months, ConfigIniSettingsAutoDiscardMonths);
             assert_field_offset!(config_nav_swap_gamepad_buttons, ConfigNavSwapGamepadButtons);
             assert_field_offset!(config_nav_move_set_mouse_pos, ConfigNavMoveSetMousePos);
             assert_field_offset!(config_nav_capture_keyboard, ConfigNavCaptureKeyboard);
@@ -447,10 +455,7 @@ fn test_io_memory_layout() {
             #[cfg(feature = "docking")]
             assert_field_offset!(config_docking_always_tab_bar, ConfigDockingAlwaysTabBar);
             #[cfg(feature = "docking")]
-            assert_field_offset!(
-                config_docking_transparent_payload,
-                ConfigDockingTransparentPayload
-            );
+            assert_field_offset!(config_docking_transparent_payload, ConfigDockingTransparentPayload);
             #[cfg(feature = "docking")]
             assert_field_offset!(config_viewports_no_auto_merge, ConfigViewportsNoAutoMerge);
             #[cfg(feature = "docking")]
@@ -458,15 +463,9 @@ fn test_io_memory_layout() {
             #[cfg(feature = "docking")]
             assert_field_offset!(config_viewports_no_decoration, ConfigViewportsNoDecoration);
             #[cfg(feature = "docking")]
-            assert_field_offset!(
-                config_viewports_no_default_parent,
-                ConfigViewportsNoDefaultParent
-            );
+            assert_field_offset!(config_viewports_no_default_parent, ConfigViewportsNoDefaultParent);
             #[cfg(feature = "docking")]
-            assert_field_offset!(
-                config_viewports_platform_focus_sets_imgui_focus,
-                ConfigViewportsPlatformFocusSetsImGuiFocus
-            );
+            assert_field_offset!(config_viewports_platform_focus_sets_imgui_focus, ConfigViewportsPlatformFocusSetsImGuiFocus);
             #[cfg(feature = "docking")]
             assert_field_offset!(config_dpi_scale_fonts, ConfigDpiScaleFonts);
             #[cfg(feature = "docking")]
@@ -493,9 +492,14 @@ fn test_io_memory_layout() {
                 ConfigWindowsCopyContentsWithCtrlC
             );
             assert_field_offset!(config_scrollbar_scroll_by_page, ConfigScrollbarScrollByPage);
+            assert_field_offset!(config_ini_settings_save_last_used_date, ConfigIniSettingsSaveLastUsedDate);
+            assert_field_offset!(config_ini_settings_auto_discard_months, ConfigIniSettingsAutoDiscardMonths);
+            assert_field_offset!(config_debug_ini_settings, ConfigDebugIniSettings);
+            assert_field_offset!(mouse_draw_cursor, MouseDrawCursor);
             assert_field_offset!(config_memory_compact_timer, ConfigMemoryCompactTimer);
             assert_field_offset!(mouse_double_click_time, MouseDoubleClickTime);
             assert_field_offset!(mouse_double_click_max_dist, MouseDoubleClickMaxDist);
+            assert_field_offset!(mouse_single_click_delay, MouseSingleClickDelay);
             assert_field_offset!(mouse_drag_threshold, MouseDragThreshold);
             assert_field_offset!(key_repeat_delay, KeyRepeatDelay);
             assert_field_offset!(key_repeat_rate, KeyRepeatRate);

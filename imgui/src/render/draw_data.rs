@@ -10,13 +10,13 @@ use crate::sys;
 pub struct DrawData {
     /// Only valid after render() is called and before the next new frame() is called.
     valid: bool,
-    /// Number of DrawList to render.
-    cmd_lists_count: i32,
+    /// Global frame count (incremented every frame).
+    frame_count: i32,
     /// For convenience, sum of all draw list index buffer sizes.
     pub total_idx_count: i32,
     /// For convenience, sum of all draw list vertex buffer sizes.
     pub total_vtx_count: i32,
-    // Array of DrawList.
+    /// Array of DrawList.
     cmd_lists: ImVector<DrawList>,
     /// Upper-left position of the viewport to render.
     ///
@@ -53,17 +53,16 @@ impl DrawData {
     /// Returns the number of draw lists included in the draw data.
     #[inline]
     pub fn draw_lists_count(&self) -> usize {
-        self.cmd_lists_count.try_into().unwrap()
+        self.cmd_lists.as_slice().len()
     }
     #[inline]
     pub(crate) unsafe fn cmd_lists(&self) -> &[*const DrawList] {
-        if self.cmd_lists_count <= 0 || self.cmd_lists.data.is_null() {
-            return &[];
+        let slice = self.cmd_lists.as_slice();
+        if slice.is_empty() {
+            &[]
+        } else {
+            slice::from_raw_parts(slice.as_ptr() as *const *const DrawList, slice.len())
         }
-        slice::from_raw_parts(
-            self.cmd_lists.data as *const *const DrawList,
-            self.cmd_lists_count as usize,
-        )
     }
     /// Converts all buffers from indexed to non-indexed, in case you cannot render indexed
     /// buffers.
@@ -123,7 +122,6 @@ fn test_drawdata_memory_layout() {
     }
     assert_field_offset!(valid, Valid);
     assert_field_offset!(cmd_lists, CmdLists);
-    assert_field_offset!(cmd_lists_count, CmdListsCount);
     assert_field_offset!(total_idx_count, TotalIdxCount);
     assert_field_offset!(total_vtx_count, TotalVtxCount);
     assert_field_offset!(display_pos, DisplayPos);
@@ -352,23 +350,37 @@ impl Default for OwnedDrawData {
 impl From<&DrawData> for OwnedDrawData {
     /// Construct `OwnedDrawData` from `DrawData` by creating a heap-allocated deep copy of the given `DrawData`
     fn from(value: &DrawData) -> Self {
+        use std::mem::size_of;
         OwnedDrawData {
             draw_data: unsafe {
                 let other_ptr = value.raw();
                 let result = sys::ImDrawData_ImDrawData();
                 (*result).Valid = other_ptr.Valid;
+                (*result).FrameCount = other_ptr.FrameCount;
                 (*result).TotalIdxCount = other_ptr.TotalIdxCount;
                 (*result).TotalVtxCount = other_ptr.TotalVtxCount;
                 (*result).DisplayPos = other_ptr.DisplayPos;
                 (*result).DisplaySize = other_ptr.DisplaySize;
                 (*result).FramebufferScale = other_ptr.FramebufferScale;
                 (*result).OwnerViewport = other_ptr.OwnerViewport;
+                (*result).Textures = other_ptr.Textures;
 
-                (*result).CmdListsCount = 0;
-                for i in 0..other_ptr.CmdListsCount as usize {
-                    sys::ImDrawData_AddDrawList(result, *other_ptr.CmdLists.Data.add(i));
-                    (*result).CmdListsCount += 1;
+                // Manually allocate and populate CmdLists ImVector
+                let list_count = other_ptr.CmdLists.Size as usize;
+                if list_count > 0 {
+                    (*result).CmdLists.Data = sys::igMemAlloc(
+                        size_of::<*mut sys::ImDrawList>() * list_count,
+                    ) as *mut *mut sys::ImDrawList;
+                    (*result).CmdLists.Size = list_count as i32;
+                    (*result).CmdLists.Capacity = list_count as i32;
+
+                    for i in 0..list_count {
+                        let original_list = *other_ptr.CmdLists.Data.add(i);
+                        let cloned_list = sys::ImDrawList_CloneOutput(original_list);
+                        *(*result).CmdLists.Data.add(i) = cloned_list;
+                    }
                 }
+
                 result
             },
         }
@@ -381,13 +393,17 @@ impl Drop for OwnedDrawData {
         unsafe {
             if !self.draw_data.is_null() {
                 if !(*self.draw_data).CmdLists.Data.is_null() {
-                    for i in 0..(*self.draw_data).CmdListsCount as usize {
+                    for i in 0..(*self.draw_data).CmdLists.Size as usize {
                         let ptr = *(*self.draw_data).CmdLists.Data.add(i);
                         if !ptr.is_null() {
                             sys::ImDrawList_destroy(ptr);
                         }
                     }
                     sys::igMemFree((*self.draw_data).CmdLists.Data as *mut std::ffi::c_void);
+                    // Clear the CmdLists to prevent ImDrawData_destroy from trying to free it again
+                    (*self.draw_data).CmdLists.Data = std::ptr::null_mut();
+                    (*self.draw_data).CmdLists.Size = 0;
+                    (*self.draw_data).CmdLists.Capacity = 0;
                 }
                 sys::ImDrawData_destroy(self.draw_data);
                 self.draw_data = std::ptr::null_mut();
@@ -413,7 +429,7 @@ fn test_owneddrawdata_from_drawdata() {
     let mut draw_lists_raw = [std::ptr::addr_of_mut!(draw_list)];
     let draw_data_raw = sys::ImDrawData {
         Valid: true,
-        CmdListsCount: 1,
+        FrameCount: 0,
         CmdLists: sys::ImVector_ImDrawListPtr {
             Size: 1,
             Capacity: 1,
@@ -436,8 +452,8 @@ fn test_owneddrawdata_from_drawdata() {
     let owned_draw_data_raw = unsafe { inner_draw_data.unwrap().raw() };
     assert_eq!(draw_data_raw.Valid, owned_draw_data_raw.Valid);
     assert_eq!(
-        draw_data_raw.CmdListsCount,
-        owned_draw_data_raw.CmdListsCount
+        draw_data_raw.CmdLists.Size,
+        owned_draw_data_raw.CmdLists.Size
     );
     assert!(!draw_data_raw.CmdLists.Data.is_null());
     assert_eq!(

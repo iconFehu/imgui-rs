@@ -22,25 +22,25 @@ bitflags! {
     #[repr(transparent)]
     pub struct HoveredFlags: i32 {
         /// [`Ui::is_item_hovered`] only: Return true if any children of the window is hovered
-        const CHILD_WINDOWS = sys::ImGuiHoveredFlags_ChildWindows;
+        const CHILD_WINDOWS = sys::ImGuiHoveredFlags_ChildWindows as i32;
         /// [`Ui::is_item_hovered`] only: Test from root window (top most parent of the current hierarchy)
-        const ROOT_WINDOW = sys::ImGuiHoveredFlags_RootWindow;
+        const ROOT_WINDOW = sys::ImGuiHoveredFlags_RootWindow as i32;
         /// [`Ui::is_item_hovered`] only: Return true if any window is hovered
-        const ANY_WINDOW = sys::ImGuiHoveredFlags_AnyWindow;
+        const ANY_WINDOW = sys::ImGuiHoveredFlags_AnyWindow as i32;
         /// [`Ui::is_item_hovered`] only: Do not consider popup hierarchy (do not treat popup emitter as parent of popup) (when used with _ChildWindows or _RootWindow)
-        const NO_POPUP_HIERARCHY = sys::ImGuiHoveredFlags_NoPopupHierarchy;
+        const NO_POPUP_HIERARCHY = sys::ImGuiHoveredFlags_NoPopupHierarchy as i32;
         /// Return true even if a popup window is normally blocking access to this item/window
-        const ALLOW_WHEN_BLOCKED_BY_POPUP = sys::ImGuiHoveredFlags_AllowWhenBlockedByPopup;
+        const ALLOW_WHEN_BLOCKED_BY_POPUP = sys::ImGuiHoveredFlags_AllowWhenBlockedByPopup as i32;
         /// Return true even if an active item is blocking access to this item/window. Useful for Drag and Drop patterns.
-        const ALLOW_WHEN_BLOCKED_BY_ACTIVE_ITEM = sys::ImGuiHoveredFlags_AllowWhenBlockedByActiveItem;
+        const ALLOW_WHEN_BLOCKED_BY_ACTIVE_ITEM = sys::ImGuiHoveredFlags_AllowWhenBlockedByActiveItem as i32;
         /// [`Ui::is_item_hovered`] only: Return true even if the item uses AllowOverlap mode and is overlapped by another hoverable item.
-        const ALLOW_WHEN_OVERLAPPED_BY_ITEM = sys::ImGuiHoveredFlags_AllowWhenOverlappedByItem;
+        const ALLOW_WHEN_OVERLAPPED_BY_ITEM = sys::ImGuiHoveredFlags_AllowWhenOverlappedByItem as i32;
         /// [`Ui::is_item_hovered`] only: Return true even if the position is obstructed or overlapped by another window.
-        const ALLOW_WHEN_OVERLAPPED_BY_WINDOW = sys::ImGuiHoveredFlags_AllowWhenOverlappedByWindow;
+        const ALLOW_WHEN_OVERLAPPED_BY_WINDOW = sys::ImGuiHoveredFlags_AllowWhenOverlappedByWindow as i32;
         /// [`Ui::is_item_hovered`] only: Return true even if the item is disabled
-        const ALLOW_WHEN_DISABLED = sys::ImGuiHoveredFlags_AllowWhenDisabled;
+        const ALLOW_WHEN_DISABLED = sys::ImGuiHoveredFlags_AllowWhenDisabled as i32;
         /// [`Ui::is_item_hovered`] only: Disable using gamepad/keyboard navigation state when active, always query mouse
-        const NO_NAV_OVERRIDE = sys::ImGuiHoveredFlags_NoNavOverride;
+        const NO_NAV_OVERRIDE = sys::ImGuiHoveredFlags_NoNavOverride as i32;
 
         /// Union of [`HoveredFlags::ALLOW_WHEN_OVERLAPPED_BY_ITEM`] and [`HoveredFlags::ALLOW_WHEN_OVERLAPPED_BY_WINDOW`],
         const ALLOW_WHEN_OVERLAPPED = Self::ALLOW_WHEN_OVERLAPPED_BY_ITEM.bits | Self::ALLOW_WHEN_OVERLAPPED_BY_WINDOW.bits;
@@ -60,25 +60,25 @@ bitflags! {
         ///   [`HoveredFlags::FOR_TOOLTIP`] (stationary + delay) so the tooltip doesn't show too often.
         /// - for items which main purpose is to be hovered, or items with low affordance, or in less
         ///   consistent apps, prefer no delay or shorter delay.
-        const FOR_TOOLTIP = sys::ImGuiHoveredFlags_ForTooltip;
+        const FOR_TOOLTIP = sys::ImGuiHoveredFlags_ForTooltip as i32;
         /// Require mouse to be stationary for [`Style::hover_stationary_delay`] (~0.15 sec)
         /// _at least one time_. After this, can move on same item/window.
         /// Using the stationary test tends to reduces the need for a long delay.
-        const STATIONARY = sys::ImGuiHoveredFlags_Stationary;
+        const STATIONARY = sys::ImGuiHoveredFlags_Stationary as i32;
         /// [`Ui::is_item_hovered`] only: Return true immediately (default).
         /// As this is the default you generally ignore this.
-        const DELAY_NONE = sys::ImGuiHoveredFlags_DelayNone;
+        const DELAY_NONE = sys::ImGuiHoveredFlags_DelayNone as i32;
         /// [`Ui::is_item_hovered`] only: Return true after [`Style::hover_delay_short`]
         /// elapsed (~0.15 sec) (shared between items) + requires mouse to be stationary
         /// for [`Style::hover_stationary_delay`] (once per item).
-        const DELAY_SHORT = sys::ImGuiHoveredFlags_DelayShort;
+        const DELAY_SHORT = sys::ImGuiHoveredFlags_DelayShort as i32;
         // [`Ui::is_item_hovered`] only: Return true after [`Style::hover_delay_normal`]
         // elapsed (~0.40 sec) (shared between items) + requires mouse to be stationary
         /// for [`Style::hover_stationary_delay`] (once per item).
-        const DELAY_NORMAL = sys::ImGuiHoveredFlags_DelayNormal;
+        const DELAY_NORMAL = sys::ImGuiHoveredFlags_DelayNormal as i32;
         /// [`Ui::is_item_hovered`] only: Disable shared delay system where moving from one item to the next keeps
         /// the previous timer for a short time (standard for tooltips with long delays)
-        const NO_SHARED_DELAY = sys::ImGuiHoveredFlags_NoSharedDelay;
+        const NO_SHARED_DELAY = sys::ImGuiHoveredFlags_NoSharedDelay as i32;
     }
 }
 

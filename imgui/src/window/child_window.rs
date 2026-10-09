@@ -322,25 +322,25 @@ bitflags::bitflags! {
     #[repr(transparent)]
     pub struct ChildFlags: i32 {
         /// Show an outer border and enable WindowPadding
-        const BORDERS = sys::ImGuiChildFlags_Borders;
+        const BORDERS = sys::ImGuiChildFlags_Borders as i32;
         /// Pad with style.WindowPadding even if no border are drawn
         /// (no padding by default for non-bordered child windows because it makes more sense)
-        const ALWAYS_USE_WINDOW_PADDING = sys::ImGuiChildFlags_AlwaysUseWindowPadding;
+        const ALWAYS_USE_WINDOW_PADDING = sys::ImGuiChildFlags_AlwaysUseWindowPadding as i32;
         /// Allow resize from right border (layout direction).
-        const RESIZE_X = sys::ImGuiChildFlags_ResizeX;
+        const RESIZE_X = sys::ImGuiChildFlags_ResizeX as i32;
         /// Allow resize from bottom border (layout direction).
-        const RESIZE_Y = sys::ImGuiChildFlags_ResizeY;
+        const RESIZE_Y = sys::ImGuiChildFlags_ResizeY as i32;
         /// Enable auto-resizing width. Read "IMPORTANT: Size measurement" details above.
-        const AUTO_RESIZE_X = sys::ImGuiChildFlags_AutoResizeX;
+        const AUTO_RESIZE_X = sys::ImGuiChildFlags_AutoResizeX as i32;
         /// Enable auto-resizing height. Read "IMPORTANT: Size measurement" details above.
-        const AUTO_RESIZE_Y = sys::ImGuiChildFlags_AutoResizeY;
+        const AUTO_RESIZE_Y = sys::ImGuiChildFlags_AutoResizeY as i32;
         /// Combined with AutoResizeX/AutoResizeY.
         /// Always measure size even when child is hidden, always return true, always disable clipping optimization! NOT RECOMMENDED.
-        const ALWAYS_AUTO_RESIZE = sys::ImGuiChildFlags_AlwaysAutoResize;
+        const ALWAYS_AUTO_RESIZE = sys::ImGuiChildFlags_AlwaysAutoResize as i32;
         /// Style the child window like a framed item:
         /// use FrameBg, FrameRounding, FrameBorderSize, FramePadding instead of ChildBg, ChildRounding, ChildBorderSize, WindowPadding.
-        const FRAME_STYLE = sys::ImGuiChildFlags_FrameStyle;
+        const FRAME_STYLE = sys::ImGuiChildFlags_FrameStyle as i32;
         /// [BETA] Share focus scope, allow gamepad/keyboard navigation to cross over parent border to this child or between sibling child windows.
-        const NAV_FLATTENED = sys::ImGuiChildFlags_NavFlattened;
+        const NAV_FLATTENED = sys::ImGuiChildFlags_NavFlattened as i32;
     }
 }

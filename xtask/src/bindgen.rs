@@ -133,7 +133,13 @@ fn generate_binding_file(
         .use_core()
         .blocklist_type("__darwin_size_t")
         .raw_line("#![allow(nonstandard_style, clippy::all)]")
-        .clang_arg("-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS=1");
+        .clang_arg("-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS=1")
+        // Match defines from imgui-sys/build.rs DEFINES array
+        .clang_arg("-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS")
+        .clang_arg("-DIMGUI_USE_WCHAR32")
+        .clang_arg("-DCIMGUI_NO_EXPORT")
+        .clang_arg("-DIMGUI_DISABLE_WIN32_FUNCTIONS")
+        .clang_arg("-DIMGUI_DISABLE_OSX_FUNCTIONS");
 
     if let Some(name) = wasm_import_mod {
         builder = builder.wasm_import_module_name(name);
@@ -336,7 +342,7 @@ fn build_impl_block(
                 "        macro_rules! fn_opt_eq {\n\
             ($left:expr, $right:expr) => {\n\
                 match ($left, $right) {\n\
-                    (Some(a), Some(b)) => ::core::ptr::fn_addr_eq(a, b),\n\
+                    (Some(a), Some(b)) => a as usize == b as usize,\n\
                     (None, None) => true,\n\
                     _ => false,\n\
                 }\n\
@@ -348,7 +354,7 @@ fn build_impl_block(
             partial_eq.push_str(
                 "        macro_rules! fn_eq {\n\
             ($left:expr, $right:expr) => {\n\
-                ::core::ptr::fn_addr_eq($left, $right)\n\
+                $left as usize == $right as usize\n\
             };\n\
         }\n\n",
             );

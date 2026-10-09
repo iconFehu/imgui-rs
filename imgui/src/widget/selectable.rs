@@ -9,15 +9,15 @@ bitflags!(
     #[repr(transparent)]
     pub struct SelectableFlags: i32 {
         /// Clicking this don't close parent popup window
-        const NO_AUTO_CLOSE_POPUPS = sys::ImGuiSelectableFlags_NoAutoClosePopups;
+        const NO_AUTO_CLOSE_POPUPS = sys::ImGuiSelectableFlags_NoAutoClosePopups as i32;
         /// Selectable frame can span all columns (text will still fit in current column)
-        const SPAN_ALL_COLUMNS = sys::ImGuiSelectableFlags_SpanAllColumns;
+        const SPAN_ALL_COLUMNS = sys::ImGuiSelectableFlags_SpanAllColumns as i32;
         /// Generate press events on double clicks too
-        const ALLOW_DOUBLE_CLICK = sys::ImGuiSelectableFlags_AllowDoubleClick;
+        const ALLOW_DOUBLE_CLICK = sys::ImGuiSelectableFlags_AllowDoubleClick as i32;
         /// Cannot be selected, display greyed out text
-        const DISABLED = sys::ImGuiSelectableFlags_Disabled;
+        const DISABLED = sys::ImGuiSelectableFlags_Disabled as i32;
         /// Hit testing to allow subsequent willdgets to overlap this one
-        const ALLOW_OVERLAP = sys::ImGuiSelectableFlags_AllowOverlap;
+        const ALLOW_OVERLAP = sys::ImGuiSelectableFlags_AllowOverlap as i32;
     }
 );
 

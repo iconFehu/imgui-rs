@@ -92,11 +92,11 @@ impl MouseCursor {
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
 pub enum MouseSource {
     /// From an normal cursor mouse.
-    Mouse = sys::ImGuiMouseSource_Mouse,
+    Mouse = sys::ImGuiMouseSource_Mouse as i32,
     /// From a touchscreen used with a finger.
-    Touchscreen = sys::ImGuiMouseSource_TouchScreen,
+    Touchscreen = sys::ImGuiMouseSource_TouchScreen as i32,
     /// From a pen.
-    Pen = sys::ImGuiMouseSource_Pen,
+    Pen = sys::ImGuiMouseSource_Pen as i32,
 }
 
 impl MouseSource {
