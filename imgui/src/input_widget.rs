@@ -1266,7 +1266,7 @@ extern "C" fn callback<T: InputTextCallbackHandler>(
             };
             // set the new char...
             unsafe {
-                (*data).EventChar = u16::try_from(new_data).unwrap_or(0);
+                (*data).EventChar = u32::try_from(new_data).unwrap_or(0);
             }
         }
         InputTextFlags::CALLBACK_HISTORY => {

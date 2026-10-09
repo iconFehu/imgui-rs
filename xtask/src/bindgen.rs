@@ -133,7 +133,8 @@ fn generate_binding_file(
         .use_core()
         .blocklist_type("__darwin_size_t")
         .raw_line("#![allow(nonstandard_style, clippy::all)]")
-        .clang_arg("-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS=1");
+        .clang_arg("-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS=1")
+        .clang_arg("-DIMGUI_USE_WCHAR32");
 
     if let Some(name) = wasm_import_mod {
         builder = builder.wasm_import_module_name(name);
