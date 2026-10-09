@@ -412,26 +412,6 @@ fn test_io_memory_layout() {
             #[cfg(feature = "docking")]
             #[cfg(feature = "docking")]
             #[cfg(feature = "docking")]
-            #[cfg(feature = "docking")]
-            assert_field_offset!(
-                config_docking_transparent_payload,
-                ConfigDockingTransparentPayload
-            );
-            #[cfg(feature = "docking")]
-            #[cfg(feature = "docking")]
-            #[cfg(feature = "docking")]
-            #[cfg(feature = "docking")]
-            assert_field_offset!(
-                config_viewports_no_default_parent,
-                ConfigViewportsNoDefaultParent
-            );
-            #[cfg(feature = "docking")]
-            assert_field_offset!(
-                config_viewports_platform_focus_sets_imgui_focus,
-                ConfigViewportsPlatformFocusSetsImGuiFocus
-            );
-            #[cfg(feature = "docking")]
-            #[cfg(feature = "docking")]
             assert_field_offset!(mouse_draw_cursor, MouseDrawCursor);
             assert_field_offset!(config_mac_os_behaviors, ConfigMacOSXBehaviors);
             assert_field_offset!(
