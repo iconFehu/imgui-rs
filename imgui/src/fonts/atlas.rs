@@ -176,9 +176,9 @@ impl FontAtlas {
             if needs_build {
                 let raw_atlas = (*atlas_ptr).raw_mut();
                 (*raw_atlas).TexDesiredFormat = format;
-                // Call ImFontAtlas::Build() via our helper wrapper
-                let result = sys::ImFontAtlas_Build_Wrapper(raw_atlas);
-                assert!(result, "ImFontAtlas::Build() failed");
+                // Call ImFontAtlasBuildMain() - the non-obsolete build function
+                // This is what GetTexDataAsFormat() calls internally
+                sys::ImFontAtlas_BuildMain_Wrapper(raw_atlas);
             }
             
             let tex_data = (*atlas_ptr).tex_data;

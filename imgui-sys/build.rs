@@ -121,18 +121,25 @@ fn main() -> std::io::Result<()> {
         // Build imgui lib, suppressing warnings.
         build.warnings(false).file(imgui_cpp).compile("libcimgui.a");
         
-        // Build font atlas helper (exposes ImFontAtlas::Build which cimgui doesn't export)
+        // Build font atlas helper (exposes ImFontAtlasBuildMain which cimgui doesn't export)
         let mut helper_build = cc::Build::new();
         helper_build.cpp(true);
         helper_build.flag_if_supported("-std=c++11");
         if compiler.is_like_gnu() || compiler.is_like_clang() {
             helper_build.flag("-fno-exceptions").flag("-fno-rtti");
         }
+        // Use same defines as main build
+        for (key, value) in DEFINES.iter() {
+            helper_build.define(key, *value);
+        }
         helper_build
             .include(cimgui_dir.join("imgui"))
             .file("src/font_atlas_helper.cpp")
             .warnings(false)
             .compile("imgui_font_atlas_helper");
+        
+        // Tell cargo to link the helper library
+        println!("cargo:rustc-link-lib=static=imgui_font_atlas_helper");
     }
     
     // Build ABI compatibility test helper

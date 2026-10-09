@@ -54,8 +54,9 @@ cfg_if::cfg_if! {
 
 // Helper functions not exposed by cimgui
 extern "C" {
-    /// Wrapper for ImFontAtlas::Build() which cimgui doesn't expose
-    pub fn ImFontAtlas_Build_Wrapper(atlas: *mut ImFontAtlas) -> bool;
+    /// Wrapper for ImFontAtlasBuildMain() - the non-obsolete build function
+    /// This is what ImFontAtlas::Build() calls internally, and is always available
+    pub fn ImFontAtlas_BuildMain_Wrapper(atlas: *mut ImFontAtlas);
 }
 
 impl ImVec2 {
