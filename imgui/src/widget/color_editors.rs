@@ -1226,8 +1226,16 @@ impl Ui {
     /// setting io.ConfigColorEditFlags.
     #[doc(alias = "SetColorEditOptions")]
     pub fn set_color_edit_options(&self, flags: ColorEditFlags) {
-        unsafe {
-            (*sys::igGetIO()).ConfigColorEditFlags = flags.bits();
+        cfg_if::cfg_if! {
+            if #[cfg(feature = "docking")] {
+                unsafe {
+                    (*sys::igGetIO_Nil()).ConfigColorEditFlags = flags.bits();
+                }
+            } else {
+                unsafe {
+                    (*sys::igGetIO()).ConfigColorEditFlags = flags.bits();
+                }
+            }
         }
     }
 }

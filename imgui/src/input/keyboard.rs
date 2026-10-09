@@ -368,7 +368,7 @@ impl Ui {
     pub fn is_key_down(&self, key: Key) -> bool {
         cfg_if::cfg_if! {
             if #[cfg(feature = "docking")] {
-                unsafe { sys::igIsKeyDown_Nil(key as i32) }
+                unsafe { sys::igIsKeyDown_Nil(key as u32) }
             } else {
                 unsafe { sys::igIsKeyDown(key as u32) }
             }
@@ -383,7 +383,7 @@ impl Ui {
     pub fn is_key_pressed(&self, key: Key) -> bool {
         cfg_if::cfg_if! {
             if #[cfg(feature = "docking")] {
-                unsafe { sys::igIsKeyPressed_Bool(key as i32, true) }
+                unsafe { sys::igIsKeyPressed_Bool(key as u32, true) }
             } else {
                 unsafe { sys::igIsKeyPressed(key as u32, true) }
             }
@@ -398,7 +398,7 @@ impl Ui {
     pub fn is_key_pressed_no_repeat(&self, key: Key) -> bool {
         cfg_if::cfg_if! {
             if #[cfg(feature = "docking")] {
-                unsafe { sys::igIsKeyPressed_Bool(key as i32, false) }
+                unsafe { sys::igIsKeyPressed_Bool(key as u32, false) }
             } else {
                 unsafe { sys::igIsKeyPressed(key as u32, false) }
             }
@@ -411,7 +411,7 @@ impl Ui {
     pub fn is_key_released(&self, key: Key) -> bool {
         cfg_if::cfg_if! {
             if #[cfg(feature = "docking")] {
-                unsafe { sys::igIsKeyReleased_Nil(key as i32) }
+                unsafe { sys::igIsKeyReleased_Nil(key as u32) }
             } else {
                 unsafe { sys::igIsKeyReleased(key as u32) }
             }
