@@ -52,6 +52,13 @@ cfg_if::cfg_if! {
     }
 }
 
+// Helper functions not exposed by cimgui
+extern "C" {
+    /// Wrapper for ImFontAtlasBuildMain() - the non-obsolete build function
+    /// This is what ImFontAtlas::Build() calls internally, and is always available
+    pub fn ImFontAtlas_BuildMain_Wrapper(atlas: *mut ImFontAtlas);
+}
+
 impl ImVec2 {
     #[inline]
     pub const fn new(x: f32, y: f32) -> ImVec2 {
