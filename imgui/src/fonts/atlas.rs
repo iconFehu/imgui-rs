@@ -156,13 +156,36 @@ impl FontAtlas {
         self.build_texture_with_bytes_per_pixel(4)
     }
 
-    fn build_texture_with_bytes_per_pixel(&self, expected_bpp: c_int) -> FontAtlasTexture<'_> {
-        let tex_data = self.tex_data;
-        assert!(
-            !tex_data.is_null(),
-            "font texture data is not available yet"
-        );
+    fn build_texture_with_bytes_per_pixel(&mut self, expected_bpp: c_int) -> FontAtlasTexture<'_> {
         unsafe {
+            // Set desired format
+            let format = if expected_bpp == 1 {
+                sys::ImTextureFormat_Alpha8
+            } else {
+                sys::ImTextureFormat_RGBA32
+            };
+            
+            // Build atlas on demand if not already built (matches Dear ImGui 1.92+ behavior)
+            // This matches the logic in GetTexDataAsFormat() from imgui_draw.cpp
+            let atlas_ptr = self as *mut FontAtlas;
+            let needs_build = !(*atlas_ptr).tex_is_built 
+                || (*atlas_ptr).tex_data.is_null() 
+                || (*(*atlas_ptr).tex_data).Pixels.is_null()
+                || (*(*atlas_ptr).raw_mut()).TexDesiredFormat != format;
+            
+            if needs_build {
+                let raw_atlas = (*atlas_ptr).raw_mut();
+                (*raw_atlas).TexDesiredFormat = format;
+                // Call ImFontAtlas::Build() via our helper wrapper
+                let result = sys::ImFontAtlas_Build_Wrapper(raw_atlas);
+                assert!(result, "ImFontAtlas::Build() failed");
+            }
+            
+            let tex_data = (*atlas_ptr).tex_data;
+            assert!(
+                !tex_data.is_null(),
+                "font texture data is not available after build"
+            );
             let tex_data = &*tex_data;
             let width = tex_data.Width;
             let height = tex_data.Height;
@@ -542,3 +565,77 @@ impl Drop for SharedFontAtlas {
 //         }
 //     }
 // }
+
+#[cfg(test)]
+mod tests {
+    use crate::{Context, FontSource};
+
+    #[test]
+    fn test_build_texture_before_first_frame() {
+        // Regression test for hudhook bug: build_rgba32_texture should work before NewFrame
+        // by building the atlas on demand (like Dear ImGui 1.92+ GetTexDataAsRGBA32)
+        
+        let mut ctx = Context::create();
+        
+        // Add default font
+        ctx.fonts().add_font(&[FontSource::DefaultFontData {
+            config: None,
+        }]);
+        
+        // Build texture before first frame - should not panic
+        let texture = ctx.fonts().build_rgba32_texture();
+        
+        // Verify texture data
+        assert!(texture.width > 0, "texture width should be positive");
+        assert!(texture.height > 0, "texture height should be positive");
+        assert!(!texture.data.is_empty(), "texture data should not be empty");
+        assert_eq!(
+            texture.data.len(),
+            (texture.width as usize) * (texture.height as usize) * 4,
+            "texture data size should match width * height * 4 (RGBA)"
+        );
+    }
+
+    #[test]
+    fn test_build_alpha8_texture_before_first_frame() {
+        // Test alpha8 variant as well
+        let mut ctx = Context::create();
+        
+        ctx.fonts().add_font(&[FontSource::DefaultFontData {
+            config: None,
+        }]);
+        
+        // Build alpha8 texture before first frame
+        let texture = ctx.fonts().build_alpha8_texture();
+        
+        assert!(texture.width > 0);
+        assert!(texture.height > 0);
+        assert!(!texture.data.is_empty());
+        assert_eq!(
+            texture.data.len(),
+            (texture.width as usize) * (texture.height as usize),
+            "texture data size should match width * height (Alpha8)"
+        );
+    }
+
+    #[test]
+    fn test_rebuild_texture_after_format_change() {
+        // Test that changing format triggers rebuild
+        let mut ctx = Context::create();
+        
+        ctx.fonts().add_font(&[FontSource::DefaultFontData {
+            config: None,
+        }]);
+        
+        // Build as RGBA32 first
+        let texture1 = ctx.fonts().build_rgba32_texture();
+        let size1 = texture1.data.len();
+        
+        // Build as Alpha8 - should rebuild with different size
+        let texture2 = ctx.fonts().build_alpha8_texture();
+        let size2 = texture2.data.len();
+        
+        // Alpha8 should be 1/4 the size of RGBA32
+        assert_eq!(size1, size2 * 4, "RGBA32 should be 4x larger than Alpha8");
+    }
+}

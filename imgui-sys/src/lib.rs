@@ -52,6 +52,12 @@ cfg_if::cfg_if! {
     }
 }
 
+// Helper functions not exposed by cimgui
+extern "C" {
+    /// Wrapper for ImFontAtlas::Build() which cimgui doesn't expose
+    pub fn ImFontAtlas_Build_Wrapper(atlas: *mut ImFontAtlas) -> bool;
+}
+
 impl ImVec2 {
     #[inline]
     pub const fn new(x: f32, y: f32) -> ImVec2 {
