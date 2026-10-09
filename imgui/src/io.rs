@@ -157,8 +157,6 @@ pub struct Io {
     #[cfg(feature = "docking")]
     pub config_dpi_scale_viewports: bool,
 
-    /// Request imgui-rs to draw a mouse cursor for you
-    pub mouse_draw_cursor: bool,
     /// macOS-style input behavior.
     pub config_mac_os_behaviors: bool,
 
@@ -169,6 +167,7 @@ pub struct Io {
     pub config_input_text_cursor_blink: bool,
     /// Pressing Enter will keep item active and select contents (single-line only).
     pub config_input_text_enter_keep_active: bool,
+    config_color_edit_flags: sys::ImGuiColorEditFlags,
     /// Enable turning DragXXX widgets into text input with a simple mouse
     /// click-release (without moving). Not desirable on devices without a
     /// keyboard.
@@ -181,6 +180,10 @@ pub struct Io {
     pub config_windows_copy_contents_with_ctrl_c: bool,
     /// Enable scrolling page by page when clicking outside the scrollbar grab.
     pub config_scrollbar_scroll_by_page: bool,
+    config_ini_settings_save_last_used_date: bool,
+    config_ini_settings_auto_discard_months: i32,
+    /// Request imgui-rs to draw a mouse cursor for you
+    pub mouse_draw_cursor: bool,
     /// Compact memory usage when unused.
     pub config_memory_compact_timer: f32,
 
@@ -425,6 +428,9 @@ fn test_io_memory_layout() {
             assert_field_offset!(fonts, Fonts);
             assert_field_offset!(font_default, FontDefault);
             assert_field_offset!(font_allow_user_scaling, FontAllowUserScaling);
+            assert_field_offset!(config_color_edit_flags, ConfigColorEditFlags);
+            assert_field_offset!(config_ini_settings_save_last_used_date, ConfigIniSettingsSaveLastUsedDate);
+            assert_field_offset!(config_ini_settings_auto_discard_months, ConfigIniSettingsAutoDiscardMonths);
             assert_field_offset!(config_nav_swap_gamepad_buttons, ConfigNavSwapGamepadButtons);
             assert_field_offset!(config_nav_move_set_mouse_pos, ConfigNavMoveSetMousePos);
             assert_field_offset!(config_nav_capture_keyboard, ConfigNavCaptureKeyboard);
@@ -493,6 +499,10 @@ fn test_io_memory_layout() {
                 ConfigWindowsCopyContentsWithCtrlC
             );
             assert_field_offset!(config_scrollbar_scroll_by_page, ConfigScrollbarScrollByPage);
+            assert_field_offset!(config_ini_settings_save_last_used_date, ConfigIniSettingsSaveLastUsedDate);
+            assert_field_offset!(config_ini_settings_auto_discard_months, ConfigIniSettingsAutoDiscardMonths);
+            assert_field_offset!(config_debug_ini_settings, ConfigDebugIniSettings);
+            assert_field_offset!(mouse_draw_cursor, MouseDrawCursor);
             assert_field_offset!(config_memory_compact_timer, ConfigMemoryCompactTimer);
             assert_field_offset!(mouse_double_click_time, MouseDoubleClickTime);
             assert_field_offset!(mouse_double_click_max_dist, MouseDoubleClickMaxDist);

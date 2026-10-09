@@ -102,6 +102,8 @@ pub struct Style {
     pub grab_rounding: f32,
     /// The size in pixels of the dead-zone around zero on logarithmic sliders that cross zero
     pub log_slider_deadzone: f32,
+    /// Rounding radius of image corners
+    pub image_rounding: f32,
     /// Thickness of border around images
     pub image_border_size: f32,
     /// Rounding radius of upper corners of tabs.
@@ -132,12 +134,18 @@ pub struct Style {
     pub tree_lines_size: f32,
     /// Tree line rounding.
     pub tree_lines_rounding: f32,
+    /// Menu item corner rounding
+    pub menu_item_rounding: f32,
+    /// Selectable corner rounding
+    pub selectable_rounding: f32,
     /// Drag-and-drop target rounding.
     pub drag_drop_target_rounding: f32,
     /// Drag-and-drop target border size.
     pub drag_drop_target_border_size: f32,
     /// Drag-and-drop target padding.
     pub drag_drop_target_padding: f32,
+    /// Size of the visual color marker box
+    pub color_marker_size: f32,
     /// Side of the color button in color editor widgets (left/right).
     ///
     /// Defaults to [`Direction::Right`].
@@ -150,6 +158,10 @@ pub struct Style {
     ///
     /// Defaults to [0.5, 0.5] (top-left aligned).
     pub selectable_text_align: [f32; 2],
+    /// Input text cursor size (thickness in pixels)
+    pub input_text_cursor_size: f32,
+    /// Separator size (thickness)
+    pub separator_size: f32,
     /// Thickness of border in [`Ui::separator_with_text`](crate::Ui::separator_with_text)
     pub separator_text_border_size: f32,
     /// Alignment of text within the separator. Defaults to `[0.0, 0.5]` (left aligned, center).
