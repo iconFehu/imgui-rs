@@ -149,11 +149,24 @@ fn compile_abi_test() -> std::io::Result<()> {
     let mut build = cc::Build::new();
     build.cpp(true);
     
+    // Use same flags as cc:Build for C++11 compatibility
+    build.flag_if_supported("-std=c++11");
+    
     for (key, value) in DEFINES.iter() {
         build.define(key, *value);
     }
     
+    // Freetype support - must match main build configuration
+    #[cfg(feature = "freetype")]
     if freetype_enabled {
+        build.flag_if_supported("-Wno-subobject-linkage");
+        
+        // Include freetype headers (vcpkg or pkg-config)
+        for include in find_freetype() {
+            build.include(include);
+        }
+        
+        build.define("CIMGUI_FREETYPE", None);
         build.define("IMGUI_ENABLE_FREETYPE", None);
     }
     
