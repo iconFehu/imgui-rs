@@ -119,6 +119,44 @@ pub struct Io {
     pub config_nav_cursor_visible_auto: bool,
     /// Always display navigation cursor.
     pub config_nav_cursor_visible_always: bool,
+
+    /// Docking: Avoid splitting nodes when docking.
+    #[cfg(feature = "docking")]
+    pub config_docking_no_split: bool,
+    /// Docking: Disable docking over existing windows.
+    #[cfg(feature = "docking")]
+    pub config_docking_no_docking_over: bool,
+    /// Docking: Hold Shift to dock windows.
+    #[cfg(feature = "docking")]
+    pub config_docking_with_shift: bool,
+    /// Docking: Always show the docking tab bar.
+    #[cfg(feature = "docking")]
+    pub config_docking_always_tab_bar: bool,
+    /// Docking: Enable transparent payload when docking.
+    #[cfg(feature = "docking")]
+    pub config_docking_transparent_payload: bool,
+    /// Docking: Avoid merging viewports when not necessary.
+    #[cfg(feature = "docking")]
+    pub config_viewports_no_auto_merge: bool,
+    /// Docking: Disable task bar icons for viewports.
+    #[cfg(feature = "docking")]
+    pub config_viewports_no_task_bar_icon: bool,
+    /// Docking: Disable window decorations for viewports.
+    #[cfg(feature = "docking")]
+    pub config_viewports_no_decoration: bool,
+    /// Docking: Avoid using the default parent viewport.
+    #[cfg(feature = "docking")]
+    pub config_viewports_no_default_parent: bool,
+    /// Docking: Focus ImGui when the platform window gains focus.
+    #[cfg(feature = "docking")]
+    pub config_viewports_platform_focus_sets_imgui_focus: bool,
+    /// Docking: Scale fonts when viewports are scaled.
+    #[cfg(feature = "docking")]
+    pub config_dpi_scale_fonts: bool,
+    /// Docking: Scale viewports for DPI.
+    #[cfg(feature = "docking")]
+    pub config_dpi_scale_viewports: bool,
+
     /// macOS-style input behavior.
     pub config_mac_os_behaviors: bool,
 
@@ -409,9 +447,29 @@ fn test_io_memory_layout() {
             assert_field_offset!(config_nav_cursor_visible_auto, ConfigNavCursorVisibleAuto);
             assert_field_offset!(config_nav_cursor_visible_always, ConfigNavCursorVisibleAlways);
             #[cfg(feature = "docking")]
+            assert_field_offset!(config_docking_no_split, ConfigDockingNoSplit);
             #[cfg(feature = "docking")]
+            assert_field_offset!(config_docking_no_docking_over, ConfigDockingNoDockingOver);
             #[cfg(feature = "docking")]
+            assert_field_offset!(config_docking_with_shift, ConfigDockingWithShift);
             #[cfg(feature = "docking")]
+            assert_field_offset!(config_docking_always_tab_bar, ConfigDockingAlwaysTabBar);
+            #[cfg(feature = "docking")]
+            assert_field_offset!(config_docking_transparent_payload, ConfigDockingTransparentPayload);
+            #[cfg(feature = "docking")]
+            assert_field_offset!(config_viewports_no_auto_merge, ConfigViewportsNoAutoMerge);
+            #[cfg(feature = "docking")]
+            assert_field_offset!(config_viewports_no_task_bar_icon, ConfigViewportsNoTaskBarIcon);
+            #[cfg(feature = "docking")]
+            assert_field_offset!(config_viewports_no_decoration, ConfigViewportsNoDecoration);
+            #[cfg(feature = "docking")]
+            assert_field_offset!(config_viewports_no_default_parent, ConfigViewportsNoDefaultParent);
+            #[cfg(feature = "docking")]
+            assert_field_offset!(config_viewports_platform_focus_sets_imgui_focus, ConfigViewportsPlatformFocusSetsImGuiFocus);
+            #[cfg(feature = "docking")]
+            assert_field_offset!(config_dpi_scale_fonts, ConfigDpiScaleFonts);
+            #[cfg(feature = "docking")]
+            assert_field_offset!(config_dpi_scale_viewports, ConfigDpiScaleViewports);
             assert_field_offset!(mouse_draw_cursor, MouseDrawCursor);
             assert_field_offset!(config_mac_os_behaviors, ConfigMacOSXBehaviors);
             assert_field_offset!(

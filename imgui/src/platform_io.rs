@@ -239,6 +239,7 @@ pub struct Viewport {
     pub draw_data: *mut sys::ImDrawData,
     pub renderer_user_data: *mut c_void,
     pub platform_user_data: *mut c_void,
+    pub platform_icon_data: *mut c_void,
     pub platform_handle: *mut c_void,
     pub platform_handle_raw: *mut c_void,
     pub platform_window_created: bool,
@@ -298,6 +299,7 @@ fn test_viewport_memory_layout() {
     assert_field_offset!(draw_data, DrawData);
     assert_field_offset!(renderer_user_data, RendererUserData);
     assert_field_offset!(platform_user_data, PlatformUserData);
+    assert_field_offset!(platform_icon_data, PlatformIconData);
     assert_field_offset!(platform_handle, PlatformHandle);
     assert_field_offset!(platform_handle_raw, PlatformHandleRaw);
     assert_field_offset!(platform_window_created, PlatformWindowCreated);

@@ -53,7 +53,7 @@ impl DrawData {
     /// Returns the number of draw lists included in the draw data.
     #[inline]
     pub fn draw_lists_count(&self) -> usize {
-        unsafe { self.cmd_lists.as_slice().len() }
+        self.cmd_lists.as_slice().len()
     }
     #[inline]
     pub(crate) unsafe fn cmd_lists(&self) -> &[*const DrawList] {
@@ -350,6 +350,7 @@ impl Default for OwnedDrawData {
 impl From<&DrawData> for OwnedDrawData {
     /// Construct `OwnedDrawData` from `DrawData` by creating a heap-allocated deep copy of the given `DrawData`
     fn from(value: &DrawData) -> Self {
+        use std::mem::size_of;
         OwnedDrawData {
             draw_data: unsafe {
                 let other_ptr = value.raw();
@@ -362,10 +363,24 @@ impl From<&DrawData> for OwnedDrawData {
                 (*result).DisplaySize = other_ptr.DisplaySize;
                 (*result).FramebufferScale = other_ptr.FramebufferScale;
                 (*result).OwnerViewport = other_ptr.OwnerViewport;
+                (*result).Textures = other_ptr.Textures;
 
-                for i in 0..other_ptr.CmdLists.Size as usize {
-                    sys::ImDrawData_AddDrawList(result, *other_ptr.CmdLists.Data.add(i));
+                // Manually allocate and populate CmdLists ImVector
+                let list_count = other_ptr.CmdLists.Size as usize;
+                if list_count > 0 {
+                    (*result).CmdLists.Data = sys::igMemAlloc(
+                        size_of::<*mut sys::ImDrawList>() * list_count,
+                    ) as *mut *mut sys::ImDrawList;
+                    (*result).CmdLists.Size = list_count as i32;
+                    (*result).CmdLists.Capacity = list_count as i32;
+
+                    for i in 0..list_count {
+                        let original_list = *other_ptr.CmdLists.Data.add(i);
+                        let cloned_list = sys::ImDrawList_CloneOutput(original_list);
+                        *(*result).CmdLists.Data.add(i) = cloned_list;
+                    }
                 }
+
                 result
             },
         }
@@ -385,6 +400,10 @@ impl Drop for OwnedDrawData {
                         }
                     }
                     sys::igMemFree((*self.draw_data).CmdLists.Data as *mut std::ffi::c_void);
+                    // Clear the CmdLists to prevent ImDrawData_destroy from trying to free it again
+                    (*self.draw_data).CmdLists.Data = std::ptr::null_mut();
+                    (*self.draw_data).CmdLists.Size = 0;
+                    (*self.draw_data).CmdLists.Capacity = 0;
                 }
                 sys::ImDrawData_destroy(self.draw_data);
                 self.draw_data = std::ptr::null_mut();
