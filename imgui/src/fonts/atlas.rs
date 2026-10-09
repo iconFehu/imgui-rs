@@ -568,14 +568,15 @@ impl Drop for SharedFontAtlas {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Context, FontSource};
+    use crate::FontSource;
 
     #[test]
     fn test_build_texture_before_first_frame() {
         // Regression test for hudhook bug: build_rgba32_texture should work before NewFrame
         // by building the atlas on demand (like Dear ImGui 1.92+ GetTexDataAsRGBA32)
         
-        let mut ctx = Context::create();
+        // Use test serialization to avoid context conflicts in parallel tests
+        let (_guard, mut ctx) = crate::test::test_ctx();
         
         // Add default font
         ctx.fonts().add_font(&[FontSource::DefaultFontData {
@@ -594,12 +595,14 @@ mod tests {
             (texture.width as usize) * (texture.height as usize) * 4,
             "texture data size should match width * height * 4 (RGBA)"
         );
+        
+        // Context and guard dropped here, releasing the mutex
     }
 
     #[test]
     fn test_build_alpha8_texture_before_first_frame() {
         // Test alpha8 variant as well
-        let mut ctx = Context::create();
+        let (_guard, mut ctx) = crate::test::test_ctx();
         
         ctx.fonts().add_font(&[FontSource::DefaultFontData {
             config: None,
@@ -621,7 +624,7 @@ mod tests {
     #[test]
     fn test_rebuild_texture_after_format_change() {
         // Test that changing format triggers rebuild
-        let mut ctx = Context::create();
+        let (_guard, mut ctx) = crate::test::test_ctx();
         
         ctx.fonts().add_font(&[FontSource::DefaultFontData {
             config: None,
