@@ -119,44 +119,6 @@ pub struct Io {
     pub config_nav_cursor_visible_auto: bool,
     /// Always display navigation cursor.
     pub config_nav_cursor_visible_always: bool,
-
-    /// Avoid splitting nodes when docking.
-    #[cfg(feature = "docking")]
-    pub config_docking_no_split: bool,
-    /// Disable docking over existing windows.
-    #[cfg(feature = "docking")]
-    pub config_docking_no_docking_over: bool,
-    /// Hold Shift to dock windows.
-    #[cfg(feature = "docking")]
-    pub config_docking_with_shift: bool,
-    /// Always show the docking tab bar.
-    #[cfg(feature = "docking")]
-    pub config_docking_always_tab_bar: bool,
-    /// Enable transparent payload when docking.
-    #[cfg(feature = "docking")]
-    pub config_docking_transparent_payload: bool,
-    /// Avoid merging viewports when not necessary.
-    #[cfg(feature = "docking")]
-    pub config_viewports_no_auto_merge: bool,
-    /// Disable task bar icons for viewports.
-    #[cfg(feature = "docking")]
-    pub config_viewports_no_task_bar_icon: bool,
-    /// Disable window decorations for viewports.
-    #[cfg(feature = "docking")]
-    pub config_viewports_no_decoration: bool,
-    /// Avoid using the default parent viewport.
-    #[cfg(feature = "docking")]
-    pub config_viewports_no_default_parent: bool,
-    /// Focus ImGui when the platform window gains focus.
-    #[cfg(feature = "docking")]
-    pub config_viewports_platform_focus_sets_imgui_focus: bool,
-    /// Scale fonts when viewports are scaled.
-    #[cfg(feature = "docking")]
-    pub config_dpi_scale_fonts: bool,
-    /// Scale viewports for DPI.
-    #[cfg(feature = "docking")]
-    pub config_dpi_scale_viewports: bool,
-
     /// macOS-style input behavior.
     pub config_mac_os_behaviors: bool,
 
@@ -182,6 +144,7 @@ pub struct Io {
     pub config_scrollbar_scroll_by_page: bool,
     config_ini_settings_save_last_used_date: bool,
     config_ini_settings_auto_discard_months: i32,
+    config_debug_ini_settings: bool,
     /// Request imgui-rs to draw a mouse cursor for you
     pub mouse_draw_cursor: bool,
     /// Compact memory usage when unused.
@@ -191,6 +154,8 @@ pub struct Io {
     pub mouse_double_click_time: f32,
     /// Distance threshold to stay in to validate a double-click, in pixels
     pub mouse_double_click_max_dist: f32,
+    /// Delay for detecting single-click vs double-click, in seconds
+    pub mouse_single_click_delay: f32,
     /// Distance threshold before considering we are dragging
     pub mouse_drag_threshold: f32,
     /// When holding a key/button, time before it starts repeating, in seconds
@@ -209,7 +174,6 @@ pub struct Io {
     pub config_debug_begin_return_value_once: bool,
     pub config_debug_begin_return_value_loop: bool,
     pub config_debug_ignore_focus_loss: bool,
-    pub config_debug_ini_settings: bool,
 
     pub(crate) backend_platform_name: *const c_char,
     pub(crate) backend_renderer_name: *const c_char,
@@ -445,24 +409,17 @@ fn test_io_memory_layout() {
             assert_field_offset!(config_nav_cursor_visible_auto, ConfigNavCursorVisibleAuto);
             assert_field_offset!(config_nav_cursor_visible_always, ConfigNavCursorVisibleAlways);
             #[cfg(feature = "docking")]
-            assert_field_offset!(config_docking_no_split, ConfigDockingNoSplit);
             #[cfg(feature = "docking")]
-            assert_field_offset!(config_docking_no_docking_over, ConfigDockingNoDockingOver);
             #[cfg(feature = "docking")]
-            assert_field_offset!(config_docking_with_shift, ConfigDockingWithShift);
             #[cfg(feature = "docking")]
-            assert_field_offset!(config_docking_always_tab_bar, ConfigDockingAlwaysTabBar);
             #[cfg(feature = "docking")]
             assert_field_offset!(
                 config_docking_transparent_payload,
                 ConfigDockingTransparentPayload
             );
             #[cfg(feature = "docking")]
-            assert_field_offset!(config_viewports_no_auto_merge, ConfigViewportsNoAutoMerge);
             #[cfg(feature = "docking")]
-            assert_field_offset!(config_viewports_no_task_bar_icon, ConfigViewportsNoTaskBarIcon);
             #[cfg(feature = "docking")]
-            assert_field_offset!(config_viewports_no_decoration, ConfigViewportsNoDecoration);
             #[cfg(feature = "docking")]
             assert_field_offset!(
                 config_viewports_no_default_parent,
@@ -474,9 +431,7 @@ fn test_io_memory_layout() {
                 ConfigViewportsPlatformFocusSetsImGuiFocus
             );
             #[cfg(feature = "docking")]
-            assert_field_offset!(config_dpi_scale_fonts, ConfigDpiScaleFonts);
             #[cfg(feature = "docking")]
-            assert_field_offset!(config_dpi_scale_viewports, ConfigDpiScaleViewports);
             assert_field_offset!(mouse_draw_cursor, MouseDrawCursor);
             assert_field_offset!(config_mac_os_behaviors, ConfigMacOSXBehaviors);
             assert_field_offset!(
@@ -506,6 +461,7 @@ fn test_io_memory_layout() {
             assert_field_offset!(config_memory_compact_timer, ConfigMemoryCompactTimer);
             assert_field_offset!(mouse_double_click_time, MouseDoubleClickTime);
             assert_field_offset!(mouse_double_click_max_dist, MouseDoubleClickMaxDist);
+            assert_field_offset!(mouse_single_click_delay, MouseSingleClickDelay);
             assert_field_offset!(mouse_drag_threshold, MouseDragThreshold);
             assert_field_offset!(key_repeat_delay, KeyRepeatDelay);
             assert_field_offset!(key_repeat_rate, KeyRepeatRate);

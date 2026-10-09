@@ -10,13 +10,13 @@ use crate::sys;
 pub struct DrawData {
     /// Only valid after render() is called and before the next new frame() is called.
     valid: bool,
-    /// Number of DrawList to render.
-    cmd_lists_count: i32,
+    /// Global frame count (incremented every frame).
+    frame_count: i32,
     /// For convenience, sum of all draw list index buffer sizes.
     pub total_idx_count: i32,
     /// For convenience, sum of all draw list vertex buffer sizes.
     pub total_vtx_count: i32,
-    // Array of DrawList.
+    /// Array of DrawList.
     cmd_lists: ImVector<DrawList>,
     /// Upper-left position of the viewport to render.
     ///
@@ -53,17 +53,16 @@ impl DrawData {
     /// Returns the number of draw lists included in the draw data.
     #[inline]
     pub fn draw_lists_count(&self) -> usize {
-        self.cmd_lists_count.try_into().unwrap()
+        unsafe { self.cmd_lists.as_slice().len() }
     }
     #[inline]
     pub(crate) unsafe fn cmd_lists(&self) -> &[*const DrawList] {
-        if self.cmd_lists_count <= 0 || self.cmd_lists.data.is_null() {
-            return &[];
+        let slice = self.cmd_lists.as_slice();
+        if slice.is_empty() {
+            &[]
+        } else {
+            slice::from_raw_parts(slice.as_ptr() as *const *const DrawList, slice.len())
         }
-        slice::from_raw_parts(
-            self.cmd_lists.data as *const *const DrawList,
-            self.cmd_lists_count as usize,
-        )
     }
     /// Converts all buffers from indexed to non-indexed, in case you cannot render indexed
     /// buffers.
@@ -356,6 +355,7 @@ impl From<&DrawData> for OwnedDrawData {
                 let other_ptr = value.raw();
                 let result = sys::ImDrawData_ImDrawData();
                 (*result).Valid = other_ptr.Valid;
+                (*result).FrameCount = other_ptr.FrameCount;
                 (*result).TotalIdxCount = other_ptr.TotalIdxCount;
                 (*result).TotalVtxCount = other_ptr.TotalVtxCount;
                 (*result).DisplayPos = other_ptr.DisplayPos;
