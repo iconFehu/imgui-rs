@@ -121,5 +121,50 @@ fn main() -> std::io::Result<()> {
         // Build imgui lib, suppressing warnings.
         build.warnings(false).file(imgui_cpp).compile("libcimgui.a");
     }
+    
+    // Build ABI compatibility test helper
+    // Always compile it - cargo will link it only when running the test
+    compile_abi_test()?;
+    
+    Ok(())
+}
+
+fn compile_abi_test() -> std::io::Result<()> {
+    let manifest_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let docking_enabled = std::env::var_os("CARGO_FEATURE_DOCKING").is_some();
+    let freetype_enabled = std::env::var_os("CARGO_FEATURE_FREETYPE").is_some();
+    
+    let cimgui_dir = if freetype_enabled {
+        if docking_enabled {
+            manifest_dir.join("third-party/imgui-docking-freetype")
+        } else {
+            manifest_dir.join("third-party/imgui-master-freetype")
+        }
+    } else if docking_enabled {
+        manifest_dir.join("third-party/imgui-docking")
+    } else {
+        manifest_dir.join("third-party/imgui-master")
+    };
+    
+    let mut build = cc::Build::new();
+    build.cpp(true);
+    
+    for (key, value) in DEFINES.iter() {
+        build.define(key, *value);
+    }
+    
+    if freetype_enabled {
+        build.define("IMGUI_ENABLE_FREETYPE", None);
+    }
+    
+    build
+        .include(cimgui_dir.join("imgui"))
+        .file("tests/abi_compat.cpp")
+        .warnings(false)
+        .compile("abi_compat");
+    
+    // Tell cargo to link the library for tests
+    println!("cargo:rustc-link-lib=static=abi_compat");
+    
     Ok(())
 }
