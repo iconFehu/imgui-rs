@@ -14,11 +14,11 @@ bitflags! {
     #[repr(transparent)]
     pub struct FontAtlasFlags: i32 {
         /// Don't round the height to next power of two
-        const NO_POWER_OF_TWO_HEIGHT = sys::ImFontAtlasFlags_NoPowerOfTwoHeight;
+        const NO_POWER_OF_TWO_HEIGHT = sys::ImFontAtlasFlags_NoPowerOfTwoHeight as i32;
         /// Don't build software mouse cursors into the atlas
-        const NO_MOUSE_CURSORS = sys::ImFontAtlasFlags_NoMouseCursors;
+        const NO_MOUSE_CURSORS = sys::ImFontAtlasFlags_NoMouseCursors as i32;
         /// Don't build thick line textures into the atlas
-        const NO_BAKED_LINES = sys::ImFontAtlasFlags_NoBakedLines;
+        const NO_BAKED_LINES = sys::ImFontAtlasFlags_NoBakedLines as i32;
     }
 }
 
@@ -302,8 +302,6 @@ pub struct FontConfig {
     pub oversample_v: i8,
     /// Align every glyph to pixel boundary
     pub pixel_snap_h: bool,
-    /// Align every glyph to pixel boundary (vertical)
-    pub pixel_snap_v: bool,
     /// Offset for all glyphs in this font
     pub glyph_offset: [f32; 2],
     /// Unicode ranges to use from this font
@@ -344,7 +342,6 @@ impl Default for FontConfig {
             oversample_h: sys_font_config.OversampleH,
             oversample_v: sys_font_config.OversampleV,
             pixel_snap_h: sys_font_config.PixelSnapH,
-            pixel_snap_v: sys_font_config.PixelSnapV,
             glyph_offset: [sys_font_config.GlyphOffset.x, sys_font_config.GlyphOffset.y],
             glyph_ranges: FontGlyphRanges::default(),
             glyph_exclude_ranges: None,
@@ -371,7 +368,6 @@ impl FontConfig {
         raw.OversampleH = self.oversample_h;
         raw.OversampleV = self.oversample_v;
         raw.PixelSnapH = self.pixel_snap_h;
-        raw.PixelSnapV = self.pixel_snap_v;
         raw.GlyphOffset = self.glyph_offset.into();
         raw.GlyphRanges = unsafe { self.glyph_ranges.to_ptr(atlas) };
         raw.GlyphExcludeRanges = match self.glyph_exclude_ranges.as_ref() {
@@ -418,7 +414,6 @@ fn test_font_config_default() {
     assert_eq!(font_config.oversample_h, sys_font_config.OversampleH);
     assert_eq!(font_config.oversample_v, sys_font_config.OversampleV);
     assert_eq!(font_config.pixel_snap_h, sys_font_config.PixelSnapH);
-    assert_eq!(font_config.pixel_snap_v, sys_font_config.PixelSnapV);
     assert_eq!(font_config.glyph_offset[0], sys_font_config.GlyphOffset.x);
     assert_eq!(font_config.glyph_offset[1], sys_font_config.GlyphOffset.y);
     assert_eq!(

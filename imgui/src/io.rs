@@ -18,32 +18,32 @@ bitflags! {
         /// Master keyboard navigation enable flag.
         ///
         /// `frame()` will automatically fill `io.nav_inputs` based on `io.keys_down`.
-        const NAV_ENABLE_KEYBOARD = sys::ImGuiConfigFlags_NavEnableKeyboard;
+        const NAV_ENABLE_KEYBOARD = sys::ImGuiConfigFlags_NavEnableKeyboard as i32;
         /// Master gamepad navigation enable flag.
         ///
         /// This is mostly to instruct the backend to fill `io.nav_inputs`. The backend
         /// also needs to set `BackendFlags::HasGamepad`.
-        const NAV_ENABLE_GAMEPAD = sys::ImGuiConfigFlags_NavEnableGamepad;
+        const NAV_ENABLE_GAMEPAD = sys::ImGuiConfigFlags_NavEnableGamepad as i32;
         /// Instruction imgui-rs to clear mouse position/buttons in `frame()`.
         ///
         /// This allows ignoring the mouse information set by the backend.
-        const NO_MOUSE = sys::ImGuiConfigFlags_NoMouse;
+        const NO_MOUSE = sys::ImGuiConfigFlags_NoMouse as i32;
         /// Instruction backend to not alter mouse cursor shape and visibility.
         ///
         /// Use if the backend cursor changes are interfering with yours and you don't want to use
         /// `set_mouse_cursor` to change the mouse cursor. You may want to honor requests from
         /// imgui-rs by reading `get_mouse_cursor` yourself instead.
-        const NO_MOUSE_CURSOR_CHANGE = sys::ImGuiConfigFlags_NoMouseCursorChange;
+        const NO_MOUSE_CURSOR_CHANGE = sys::ImGuiConfigFlags_NoMouseCursorChange as i32;
         /// Instruction imgui-rs to disable keyboard navigation.
-        const NO_KEYBOARD = sys::ImGuiConfigFlags_NoKeyboard;
+        const NO_KEYBOARD = sys::ImGuiConfigFlags_NoKeyboard as i32;
         /// Application is SRGB-aware.
         ///
         /// Not used by core imgui-rs.
-        const IS_SRGB = sys::ImGuiConfigFlags_IsSRGB;
+        const IS_SRGB = sys::ImGuiConfigFlags_IsSRGB as i32;
         /// Application is using a touch screen instead of a mouse.
         ///
         /// Not used by core imgui-rs.
-        const IS_TOUCH_SCREEN = sys::ImGuiConfigFlags_IsTouchScreen;
+        const IS_TOUCH_SCREEN = sys::ImGuiConfigFlags_IsTouchScreen as i32;
 
     }
 }
@@ -51,9 +51,9 @@ bitflags! {
 bitflags! {
     #[repr(transparent)]
     pub struct ViewportFlags: i32 {
-        const IS_PLATFORM_WINDOW = sys::ImGuiViewportFlags_IsPlatformWindow;
-        const IS_PLATFORM_MONITOR = sys::ImGuiViewportFlags_IsPlatformMonitor;
-        const OWNED_BY_APP = sys::ImGuiViewportFlags_OwnedByApp;
+        const IS_PLATFORM_WINDOW = sys::ImGuiViewportFlags_IsPlatformWindow as i32;
+        const IS_PLATFORM_MONITOR = sys::ImGuiViewportFlags_IsPlatformMonitor as i32;
+        const OWNED_BY_APP = sys::ImGuiViewportFlags_OwnedByApp as i32;
     }
 }
 
@@ -62,18 +62,18 @@ bitflags! {
     #[repr(transparent)]
     pub struct BackendFlags: i32 {
         /// Backend supports gamepad and currently has one connected
-        const HAS_GAMEPAD = sys::ImGuiBackendFlags_HasGamepad;
+        const HAS_GAMEPAD = sys::ImGuiBackendFlags_HasGamepad as i32;
         /// Backend supports honoring `get_mouse_cursor` value to change the OS cursor shape
-        const HAS_MOUSE_CURSORS = sys::ImGuiBackendFlags_HasMouseCursors;
+        const HAS_MOUSE_CURSORS = sys::ImGuiBackendFlags_HasMouseCursors as i32;
         /// Backend supports `io.want_set_mouse_pos` requests to reposition the OS mouse position.
-        const HAS_SET_MOUSE_POS = sys::ImGuiBackendFlags_HasSetMousePos;
+        const HAS_SET_MOUSE_POS = sys::ImGuiBackendFlags_HasSetMousePos as i32;
         /// Backend renderer supports DrawCmd::vtx_offset.
         ///
         /// This enables output of large meshes (64K+ vertices) while still using 16-bits indices.
-        const RENDERER_HAS_VTX_OFFSET = sys::ImGuiBackendFlags_RendererHasVtxOffset;
+        const RENDERER_HAS_VTX_OFFSET = sys::ImGuiBackendFlags_RendererHasVtxOffset as i32;
 
         /// Backend renderer supports ImTextureData textures.
-        const RENDERER_HAS_TEXTURES = sys::ImGuiBackendFlags_RendererHasTextures;
+        const RENDERER_HAS_TEXTURES = sys::ImGuiBackendFlags_RendererHasTextures as i32;
     }
 }
 
@@ -358,7 +358,7 @@ impl Io {
 
     pub fn add_key_event(&mut self, key: Key, down: bool) {
         unsafe {
-            sys::ImGuiIO_AddKeyEvent(self.raw_mut(), key as i32, down);
+            sys::ImGuiIO_AddKeyEvent(self.raw_mut(), key as u32, down);
         }
     }
 
@@ -373,7 +373,7 @@ impl Io {
 
     pub fn add_key_analog_event(&mut self, key: Key, down: bool, value: f32) {
         unsafe {
-            sys::ImGuiIO_AddKeyAnalogEvent(self.raw_mut(), key as i32, down, value);
+            sys::ImGuiIO_AddKeyAnalogEvent(self.raw_mut(), key as u32, down, value);
         }
     }
 }

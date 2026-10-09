@@ -4,6 +4,12 @@
 
 ### Added
 
+- Added `CheckboxSelectedBg` style color
+
+### Changed
+
+- Updated Dear ImGui to 1.92.9b
+
 - Bindings for `Key::F12..=Key::F24`, `Key::AppBack`, and `Key::AppForward`.
 - `MouseSource` enumeration which describes from what kind of device a mouse event originated.
 - `Ui::text_link` and `Ui::text_link_open_url` have been added, for working with hyperlinks.
@@ -16,10 +22,19 @@
   have been added. Note though that `Style::use_x_colors` is still present, as it avoids taking up
   a lot of stack space like the `StyleColor`s do.
 
+### Removed
+
+- Removed `FontConfig::pixel_snap_v` field (obsoleted in Dear ImGui 1.91.6)
+
+### Breaking Changes
+
+- `ImDrawList::AddRect` and `ImDrawList::AddPolyline`: thickness and flags parameters have been swapped (thickness is now before flags)
+- `SetColorEditOptions` function now directly sets `io.ConfigColorEditFlags` instead of calling the (now obsolete) C function
+
 ### Changed
 
 - MSRV is now `1.82`. We will bump the MSRV to `1.85` in the future.
-- Updated Dear ImGui to 1.92.5.
+- Updated Dear ImGui to 1.92.9b (from 1.92.5).
 - Keys now communicate with `imgui` in a far simpler manner -- rather than going through
   a complex keymap, they instead simply notate if they are or are not down to `imgui` directly.
   Multiple functions, such as `Ui::key_index`, `Ui::is_key_index_down`, `Ui::is_key_index_pressed`,

@@ -300,136 +300,138 @@ impl IndexMut<StyleColor> for Style {
 #[non_exhaustive]
 pub enum StyleColor {
     /// Default color of text througout application
-    Text = sys::ImGuiCol_Text,
+    Text = sys::ImGuiCol_Text as i32,
     /// Text in areas disabled e.g via [`crate::Ui::begin_disabled`]
-    TextDisabled = sys::ImGuiCol_TextDisabled,
+    TextDisabled = sys::ImGuiCol_TextDisabled as i32,
     /// Background of normal windows
-    WindowBg = sys::ImGuiCol_WindowBg,
+    WindowBg = sys::ImGuiCol_WindowBg as i32,
     /// Background of child windows
-    ChildBg = sys::ImGuiCol_ChildBg,
+    ChildBg = sys::ImGuiCol_ChildBg as i32,
     /// Background of popups, menus, tooltips windows
-    PopupBg = sys::ImGuiCol_PopupBg,
+    PopupBg = sys::ImGuiCol_PopupBg as i32,
     /// Border around windows, frames, etc
-    Border = sys::ImGuiCol_Border,
+    Border = sys::ImGuiCol_Border as i32,
     /// Used for a drop-shadow/emboss style effect wherever `Border` is used
-    BorderShadow = sys::ImGuiCol_BorderShadow,
+    BorderShadow = sys::ImGuiCol_BorderShadow as i32,
     /// Background of checkbox, radio button, plot, slider, text input
-    FrameBg = sys::ImGuiCol_FrameBg,
+    FrameBg = sys::ImGuiCol_FrameBg as i32,
     /// Same as `FrameBg` but when mouse is hovering over the widget
-    FrameBgHovered = sys::ImGuiCol_FrameBgHovered,
+    FrameBgHovered = sys::ImGuiCol_FrameBgHovered as i32,
     /// Same as `FrameBg` but when the mouse is active (e.g mouse is down)
-    FrameBgActive = sys::ImGuiCol_FrameBgActive,
+    FrameBgActive = sys::ImGuiCol_FrameBgActive as i32,
     /// Window title for inactive windows. Also used as the "docked window tab area" when docking is enabled.
-    TitleBg = sys::ImGuiCol_TitleBg,
+    TitleBg = sys::ImGuiCol_TitleBg as i32,
     /// Window title for active windows.
-    TitleBgActive = sys::ImGuiCol_TitleBgActive,
+    TitleBgActive = sys::ImGuiCol_TitleBgActive as i32,
     /// Color of a floating window when it is "rolled up"
-    TitleBgCollapsed = sys::ImGuiCol_TitleBgCollapsed,
+    TitleBgCollapsed = sys::ImGuiCol_TitleBgCollapsed as i32,
     /// Main menu bar background, see [`crate::Ui::main_menu_bar`]
-    MenuBarBg = sys::ImGuiCol_MenuBarBg,
+    MenuBarBg = sys::ImGuiCol_MenuBarBg as i32,
     /// Background area of scrollbar
-    ScrollbarBg = sys::ImGuiCol_ScrollbarBg,
+    ScrollbarBg = sys::ImGuiCol_ScrollbarBg as i32,
     /// Movable area of scollbar when "idle"
-    ScrollbarGrab = sys::ImGuiCol_ScrollbarGrab,
+    ScrollbarGrab = sys::ImGuiCol_ScrollbarGrab as i32,
     /// Moveable area of scrollbar when mouse is over it
-    ScrollbarGrabHovered = sys::ImGuiCol_ScrollbarGrabHovered,
+    ScrollbarGrabHovered = sys::ImGuiCol_ScrollbarGrabHovered as i32,
     /// Moveable area of scollbar when it is being clicked on
-    ScrollbarGrabActive = sys::ImGuiCol_ScrollbarGrabActive,
+    ScrollbarGrabActive = sys::ImGuiCol_ScrollbarGrabActive as i32,
     /// The color of the tick character inside the checkbox
-    CheckMark = sys::ImGuiCol_CheckMark,
+    CheckMark = sys::ImGuiCol_CheckMark as i32,
+    /// Checkbox background when selected
+    CheckboxSelectedBg = sys::ImGuiCol_CheckboxSelectedBg as i32,
     /// Color of interactive handle inside various slider widgets
-    SliderGrab = sys::ImGuiCol_SliderGrab,
+    SliderGrab = sys::ImGuiCol_SliderGrab as i32,
     /// Interactive handle when being clicked on
-    SliderGrabActive = sys::ImGuiCol_SliderGrabActive,
+    SliderGrabActive = sys::ImGuiCol_SliderGrabActive as i32,
     /// Main frame color of default button
-    Button = sys::ImGuiCol_Button,
+    Button = sys::ImGuiCol_Button as i32,
     /// Button when mouse hovers over it
-    ButtonHovered = sys::ImGuiCol_ButtonHovered,
+    ButtonHovered = sys::ImGuiCol_ButtonHovered as i32,
     /// Button when mouse is down
-    ButtonActive = sys::ImGuiCol_ButtonActive,
+    ButtonActive = sys::ImGuiCol_ButtonActive as i32,
     /// Inactive color for header sections, such as [`crate::Ui::collapsing_header`]
-    Header = sys::ImGuiCol_Header,
+    Header = sys::ImGuiCol_Header as i32,
     /// As with `Header` but when hovered
-    HeaderHovered = sys::ImGuiCol_HeaderHovered,
+    HeaderHovered = sys::ImGuiCol_HeaderHovered as i32,
     /// As with `Header` but when mouse is down
-    HeaderActive = sys::ImGuiCol_HeaderActive,
+    HeaderActive = sys::ImGuiCol_HeaderActive as i32,
     /// Dividing line, e.g [`crate::Ui::separator`]
-    Separator = sys::ImGuiCol_Separator,
+    Separator = sys::ImGuiCol_Separator as i32,
     /// Dividing line when mouse hovered
-    SeparatorHovered = sys::ImGuiCol_SeparatorHovered,
+    SeparatorHovered = sys::ImGuiCol_SeparatorHovered as i32,
     /// Dividing line when mouse button down
-    SeparatorActive = sys::ImGuiCol_SeparatorActive,
+    SeparatorActive = sys::ImGuiCol_SeparatorActive as i32,
     /// Resize handle on windows
-    ResizeGrip = sys::ImGuiCol_ResizeGrip,
+    ResizeGrip = sys::ImGuiCol_ResizeGrip as i32,
     /// Resize handle when mouse hovered over handle
-    ResizeGripHovered = sys::ImGuiCol_ResizeGripHovered,
+    ResizeGripHovered = sys::ImGuiCol_ResizeGripHovered as i32,
     /// Resize handle when mouse button down
-    ResizeGripActive = sys::ImGuiCol_ResizeGripActive,
+    ResizeGripActive = sys::ImGuiCol_ResizeGripActive as i32,
     /// Input text cursor
-    InputTextCursor = sys::ImGuiCol_InputTextCursor,
+    InputTextCursor = sys::ImGuiCol_InputTextCursor as i32,
     /// Hovered tab (applies regardless if tab is active, or is in the active window)
-    TabHovered = sys::ImGuiCol_TabHovered,
+    TabHovered = sys::ImGuiCol_TabHovered as i32,
     /// Inactive tab color. Applies to both tab widgets and docked windows
-    Tab = sys::ImGuiCol_Tab,
+    Tab = sys::ImGuiCol_Tab as i32,
     /// Color of currently selected tab
-    TabSelected = sys::ImGuiCol_TabSelected,
+    TabSelected = sys::ImGuiCol_TabSelected as i32,
     /// Tab horizontal overline, when tab-bar is focused & tab is selected
-    TabSelectedOverline = sys::ImGuiCol_TabSelectedOverline,
+    TabSelectedOverline = sys::ImGuiCol_TabSelectedOverline as i32,
     /// Non-selected, when in an unfocused window
-    TabDimmed = sys::ImGuiCol_TabDimmed,
+    TabDimmed = sys::ImGuiCol_TabDimmed as i32,
     /// Selected tab, in an unfocused window
-    TabDimmedSelected = sys::ImGuiCol_TabDimmedSelected,
+    TabDimmedSelected = sys::ImGuiCol_TabDimmedSelected as i32,
     /// Non-selected, when in an unfocused window
-    TabDimmedSelectedOverline = sys::ImGuiCol_TabDimmedSelectedOverline,
+    TabDimmedSelectedOverline = sys::ImGuiCol_TabDimmedSelectedOverline as i32,
 
     /// Color of widget which appears when moving windows around, allowing splitting/etc of dock areas
     #[cfg(feature = "docking")]
-    DockingPreview = sys::ImGuiCol_DockingPreview,
+    DockingPreview = sys::ImGuiCol_DockingPreview as i32,
     /// Colour when black area is present in docking setup (e.g while dragging a window away from a split area, leaving it temporarily empty)
     #[cfg(feature = "docking")]
-    DockingEmptyBg = sys::ImGuiCol_DockingEmptyBg,
+    DockingEmptyBg = sys::ImGuiCol_DockingEmptyBg as i32,
 
     /// Lines in [`crate::Ui::plot_lines`]
-    PlotLines = sys::ImGuiCol_PlotLines,
+    PlotLines = sys::ImGuiCol_PlotLines as i32,
     /// `PlotLines` when hovered
-    PlotLinesHovered = sys::ImGuiCol_PlotLinesHovered,
+    PlotLinesHovered = sys::ImGuiCol_PlotLinesHovered as i32,
     /// Used for [`crate::Ui::plot_histogram`]
-    PlotHistogram = sys::ImGuiCol_PlotHistogram,
+    PlotHistogram = sys::ImGuiCol_PlotHistogram as i32,
     /// `PlotHistogram` when hovered
-    PlotHistogramHovered = sys::ImGuiCol_PlotHistogramHovered,
+    PlotHistogramHovered = sys::ImGuiCol_PlotHistogramHovered as i32,
 
     /// Background color of header rows in table widget
-    TableHeaderBg = sys::ImGuiCol_TableHeaderBg,
+    TableHeaderBg = sys::ImGuiCol_TableHeaderBg as i32,
     /// Main border color for table, used around whole table and around header cells
-    TableBorderStrong = sys::ImGuiCol_TableBorderStrong,
+    TableBorderStrong = sys::ImGuiCol_TableBorderStrong as i32,
     /// Used within border to separate cells
-    TableBorderLight = sys::ImGuiCol_TableBorderLight,
+    TableBorderLight = sys::ImGuiCol_TableBorderLight as i32,
     /// Background of cells in table
-    TableRowBg = sys::ImGuiCol_TableRowBg,
+    TableRowBg = sys::ImGuiCol_TableRowBg as i32,
     /// Used for alternating row colors, if enabled by `TableFlags::ROW_BG`
-    TableRowBgAlt = sys::ImGuiCol_TableRowBgAlt,
+    TableRowBgAlt = sys::ImGuiCol_TableRowBgAlt as i32,
 
     /// Hyperlink color
-    TextLink = sys::ImGuiCol_TextLink,
+    TextLink = sys::ImGuiCol_TextLink as i32,
     /// The highlight color used for selection in text inputs
-    TextSelectedBg = sys::ImGuiCol_TextSelectedBg,
+    TextSelectedBg = sys::ImGuiCol_TextSelectedBg as i32,
     /// Tree lines color
-    TreeLines = sys::ImGuiCol_TreeLines,
+    TreeLines = sys::ImGuiCol_TreeLines as i32,
 
     /// Used for drag-and-drop system
-    DragDropTarget = sys::ImGuiCol_DragDropTarget,
+    DragDropTarget = sys::ImGuiCol_DragDropTarget as i32,
     /// Drag-and-drop target background
-    DragDropTargetBg = sys::ImGuiCol_DragDropTargetBg,
+    DragDropTargetBg = sys::ImGuiCol_DragDropTargetBg as i32,
     /// Unsaved document marker
-    UnsavedMarker = sys::ImGuiCol_UnsavedMarker,
+    UnsavedMarker = sys::ImGuiCol_UnsavedMarker as i32,
     /// Gamepad/keyboard: current highlighted item
-    NavCursor = sys::ImGuiCol_NavCursor,
+    NavCursor = sys::ImGuiCol_NavCursor as i32,
     /// Highlight window when using CTRL+TAB
-    NavWindowingHighlight = sys::ImGuiCol_NavWindowingHighlight,
+    NavWindowingHighlight = sys::ImGuiCol_NavWindowingHighlight as i32,
     /// Darken/colorize entire screen behind the CTRL+TAB window list, when active
-    NavWindowingDimBg = sys::ImGuiCol_NavWindowingDimBg,
+    NavWindowingDimBg = sys::ImGuiCol_NavWindowingDimBg as i32,
     /// Darken/colorize entire screen behind a modal window, when one is active
-    ModalWindowDimBg = sys::ImGuiCol_ModalWindowDimBg,
+    ModalWindowDimBg = sys::ImGuiCol_ModalWindowDimBg as i32,
 }
 
 impl StyleColor {
@@ -454,6 +456,7 @@ impl StyleColor {
         StyleColor::ScrollbarGrabHovered,
         StyleColor::ScrollbarGrabActive,
         StyleColor::CheckMark,
+        StyleColor::CheckboxSelectedBg,
         StyleColor::SliderGrab,
         StyleColor::SliderGrabActive,
         StyleColor::Button,
@@ -528,6 +531,7 @@ impl StyleColor {
             StyleColor::ScrollbarGrabHovered => "ScrollbarGrabHovered",
             StyleColor::ScrollbarGrabActive => "ScrollbarGrabActive",
             StyleColor::CheckMark => "CheckMark",
+            StyleColor::CheckboxSelectedBg => "CheckboxSelectedBg",
             StyleColor::SliderGrab => "SliderGrab",
             StyleColor::SliderGrabActive => "SliderGrabActive",
             StyleColor::Button => "Button",

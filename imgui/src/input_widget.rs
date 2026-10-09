@@ -13,47 +13,47 @@ bitflags!(
     #[repr(C)]
     pub struct InputTextFlags: i32 {
         /// Allow 0123456789.+-*/
-        const CHARS_DECIMAL = sys::ImGuiInputTextFlags_CharsDecimal;
+        const CHARS_DECIMAL = sys::ImGuiInputTextFlags_CharsDecimal as i32;
         /// Allow 0123456789ABCDEFabcdef
-        const CHARS_HEXADECIMAL = sys::ImGuiInputTextFlags_CharsHexadecimal;
+        const CHARS_HEXADECIMAL = sys::ImGuiInputTextFlags_CharsHexadecimal as i32;
         /// Turn a..z into A..Z
-        const CHARS_UPPERCASE = sys::ImGuiInputTextFlags_CharsUppercase;
+        const CHARS_UPPERCASE = sys::ImGuiInputTextFlags_CharsUppercase as i32;
         /// Filter out spaces, tabs
-        const CHARS_NO_BLANK = sys::ImGuiInputTextFlags_CharsNoBlank;
+        const CHARS_NO_BLANK = sys::ImGuiInputTextFlags_CharsNoBlank as i32;
         /// Select entire text when first taking mouse focus
-        const AUTO_SELECT_ALL = sys::ImGuiInputTextFlags_AutoSelectAll;
+        const AUTO_SELECT_ALL = sys::ImGuiInputTextFlags_AutoSelectAll as i32;
         /// Return 'true' when Enter is pressed (as opposed to when the value was modified)
-        const ENTER_RETURNS_TRUE = sys::ImGuiInputTextFlags_EnterReturnsTrue;
+        const ENTER_RETURNS_TRUE = sys::ImGuiInputTextFlags_EnterReturnsTrue as i32;
         /// Call user function on pressing TAB (for completion handling)
-        const CALLBACK_COMPLETION = sys::ImGuiInputTextFlags_CallbackCompletion;
+        const CALLBACK_COMPLETION = sys::ImGuiInputTextFlags_CallbackCompletion as i32;
         /// Call user function on pressing Up/Down arrows (for history handling)
-        const CALLBACK_HISTORY = sys::ImGuiInputTextFlags_CallbackHistory;
+        const CALLBACK_HISTORY = sys::ImGuiInputTextFlags_CallbackHistory as i32;
         /// Callback on any edit (note that InputText() already returns true on edit, the callback
         /// is useful mainly to manipulate the underlying buffer while focus is active)
-        const CALLBACK_EDIT = sys::ImGuiInputTextFlags_CallbackEdit;
+        const CALLBACK_EDIT = sys::ImGuiInputTextFlags_CallbackEdit as i32;
         /// Call user function every time. User code may query cursor position, modify text buffer.
-        const CALLBACK_ALWAYS = sys::ImGuiInputTextFlags_CallbackAlways;
+        const CALLBACK_ALWAYS = sys::ImGuiInputTextFlags_CallbackAlways as i32;
         /// Call user function to filter character.
-        const CALLBACK_CHAR_FILTER = sys::ImGuiInputTextFlags_CallbackCharFilter;
+        const CALLBACK_CHAR_FILTER = sys::ImGuiInputTextFlags_CallbackCharFilter as i32;
         /// Pressing TAB input a '\t' character into the text field
-        const ALLOW_TAB_INPUT = sys::ImGuiInputTextFlags_AllowTabInput;
+        const ALLOW_TAB_INPUT = sys::ImGuiInputTextFlags_AllowTabInput as i32;
         /// In multi-line mode, unfocus with Enter, add new line with Ctrl+Enter (default is
         /// opposite: unfocus with Ctrl+Enter, add line with Enter).
-        const CTRL_ENTER_FOR_NEW_LINE = sys::ImGuiInputTextFlags_CtrlEnterForNewLine;
+        const CTRL_ENTER_FOR_NEW_LINE = sys::ImGuiInputTextFlags_CtrlEnterForNewLine as i32;
         /// Disable following the cursor horizontally
-        const NO_HORIZONTAL_SCROLL = sys::ImGuiInputTextFlags_NoHorizontalScroll;
+        const NO_HORIZONTAL_SCROLL = sys::ImGuiInputTextFlags_NoHorizontalScroll as i32;
         /// Always overwrite (aka "insert mode").
-        const ALWAYS_OVERWRITE = sys::ImGuiInputTextFlags_AlwaysOverwrite;
+        const ALWAYS_OVERWRITE = sys::ImGuiInputTextFlags_AlwaysOverwrite as i32;
         /// Read-only mode
-        const READ_ONLY = sys::ImGuiInputTextFlags_ReadOnly;
+        const READ_ONLY = sys::ImGuiInputTextFlags_ReadOnly as i32;
         /// Password mode, display all characters as '*'
-        const PASSWORD = sys::ImGuiInputTextFlags_Password;
+        const PASSWORD = sys::ImGuiInputTextFlags_Password as i32;
         /// Disable undo/redo.
-        const NO_UNDO_REDO = sys::ImGuiInputTextFlags_NoUndoRedo;
+        const NO_UNDO_REDO = sys::ImGuiInputTextFlags_NoUndoRedo as i32;
         /// Allow 0123456789.+-*/eE (Scientific notation input)
-        const CHARS_SCIENTIFIC = sys::ImGuiInputTextFlags_CharsScientific;
+        const CHARS_SCIENTIFIC = sys::ImGuiInputTextFlags_CharsScientific as i32;
         /// Allow buffer capacity resize + notify when the string wants to be resized
-        const CALLBACK_RESIZE = sys::ImGuiInputTextFlags_CallbackResize;
+        const CALLBACK_RESIZE = sys::ImGuiInputTextFlags_CallbackResize as i32;
     }
 );
 
@@ -898,16 +898,16 @@ bitflags!(
     /// the general textflags.
     pub struct InputTextCallback: i32 {
         /// Call user function on pressing TAB (for completion handling)
-        const COMPLETION = sys::ImGuiInputTextFlags_CallbackCompletion;
+        const COMPLETION = sys::ImGuiInputTextFlags_CallbackCompletion as i32;
         /// Call user function on pressing Up/Down arrows (for history handling)
-        const HISTORY = sys::ImGuiInputTextFlags_CallbackHistory;
+        const HISTORY = sys::ImGuiInputTextFlags_CallbackHistory as i32;
         /// Call user function every time. User code may query cursor position, modify text buffer.
-        const ALWAYS = sys::ImGuiInputTextFlags_CallbackAlways;
+        const ALWAYS = sys::ImGuiInputTextFlags_CallbackAlways as i32;
         /// Call user function to filter character.
-        const CHAR_FILTER = sys::ImGuiInputTextFlags_CallbackCharFilter;
+        const CHAR_FILTER = sys::ImGuiInputTextFlags_CallbackCharFilter as i32;
         /// Callback on buffer edit (note that InputText already returns true on edit, the
         /// callback is useful mainly to manipulate the underlying buffer while focus is active)
-        const EDIT = sys::ImGuiInputTextFlags_CallbackEdit;
+        const EDIT = sys::ImGuiInputTextFlags_CallbackEdit as i32;
     }
 );
 
@@ -916,14 +916,14 @@ bitflags!(
     /// general textflags.
     pub struct InputTextMultilineCallback: i32 {
         /// Call user function on pressing TAB (for completion handling)
-        const COMPLETION = sys::ImGuiInputTextFlags_CallbackCompletion;
+        const COMPLETION = sys::ImGuiInputTextFlags_CallbackCompletion as i32;
         /// Call user function every time. User code may query cursor position, modify text buffer.
-        const ALWAYS = sys::ImGuiInputTextFlags_CallbackAlways;
+        const ALWAYS = sys::ImGuiInputTextFlags_CallbackAlways as i32;
         /// Call user function to filter character.
-        const CHAR_FILTER = sys::ImGuiInputTextFlags_CallbackCharFilter;
+        const CHAR_FILTER = sys::ImGuiInputTextFlags_CallbackCharFilter as i32;
         /// Callback on buffer edit (note that InputText already returns true on edit, the
         /// callback is useful mainly to manipulate the underlying buffer while focus is active)
-        const EDIT = sys::ImGuiInputTextFlags_CallbackEdit;
+        const EDIT = sys::ImGuiInputTextFlags_CallbackEdit as i32;
     }
 );
 

@@ -113,60 +113,60 @@ bitflags! {
     pub struct ColorEditFlags: i32 {
         /// ColorEdit, ColorPicker, ColorButton: ignore Alpha component (read only 3 components of
         /// the value).
-        const NO_ALPHA = sys::ImGuiColorEditFlags_NoAlpha;
+        const NO_ALPHA = sys::ImGuiColorEditFlags_NoAlpha as i32;
         /// ColorEdit: disable picker when clicking on colored square.
-        const NO_PICKER = sys::ImGuiColorEditFlags_NoPicker;
+        const NO_PICKER = sys::ImGuiColorEditFlags_NoPicker as i32;
         /// ColorEdit: disable toggling options menu when right-clicking on inputs/small preview.
-        const NO_OPTIONS = sys::ImGuiColorEditFlags_NoOptions;
+        const NO_OPTIONS = sys::ImGuiColorEditFlags_NoOptions as i32;
         /// ColorEdit, ColorPicker: disable colored square preview next to the inputs. (e.g. to
         /// show only the inputs)
-        const NO_SMALL_PREVIEW = sys::ImGuiColorEditFlags_NoSmallPreview;
+        const NO_SMALL_PREVIEW = sys::ImGuiColorEditFlags_NoSmallPreview as i32;
         /// ColorEdit, ColorPicker: disable inputs sliders/text widgets (e.g. to show only the
         /// small preview colored square).
-        const NO_INPUTS = sys::ImGuiColorEditFlags_NoInputs;
+        const NO_INPUTS = sys::ImGuiColorEditFlags_NoInputs as i32;
         /// ColorEdit, ColorPicker, ColorButton: disable tooltip when hovering the preview.
-        const NO_TOOLTIP = sys::ImGuiColorEditFlags_NoTooltip;
+        const NO_TOOLTIP = sys::ImGuiColorEditFlags_NoTooltip as i32;
         /// ColorEdit, ColorPicker: disable display of inline text label (the label is still
         /// forwarded to the tooltip and picker).
-        const NO_LABEL = sys::ImGuiColorEditFlags_NoLabel;
+        const NO_LABEL = sys::ImGuiColorEditFlags_NoLabel as i32;
         /// ColorPicker: disable bigger color preview on right side of the picker, use small
         /// colored square preview instead.
-        const NO_SIDE_PREVIEW = sys::ImGuiColorEditFlags_NoSidePreview;
+        const NO_SIDE_PREVIEW = sys::ImGuiColorEditFlags_NoSidePreview as i32;
         /// ColorEdit: disable drag and drop target. ColorButton: disable drag and drop source.
-        const NO_DRAG_DROP = sys::ImGuiColorEditFlags_NoDragDrop;
+        const NO_DRAG_DROP = sys::ImGuiColorEditFlags_NoDragDrop as i32;
         /// ColorButton: disable border (which is enforced by default).
-        const NO_BORDER = sys::ImGuiColorEditFlags_NoBorder;
+        const NO_BORDER = sys::ImGuiColorEditFlags_NoBorder as i32;
 
         /// ColorEdit, ColorPicker: show vertical alpha bar/gradient in picker.
-        const ALPHA_BAR = sys::ImGuiColorEditFlags_AlphaBar;
+        const ALPHA_BAR = sys::ImGuiColorEditFlags_AlphaBar as i32;
         /// ColorEdit, ColorPicker, ColorButton: display preview as a transparent color over a
         /// checkerboard, instead of opaque.
-        const ALPHA_PREVIEW = sys::ImGuiColorEditFlags_AlphaPreviewHalf;
+        const ALPHA_PREVIEW = sys::ImGuiColorEditFlags_AlphaPreviewHalf as i32;
         /// ColorEdit, ColorPicker, ColorButton: display half opaque / half checkerboard, instead
         /// of opaque.
-        const ALPHA_PREVIEW_HALF = sys::ImGuiColorEditFlags_AlphaPreviewHalf;
+        const ALPHA_PREVIEW_HALF = sys::ImGuiColorEditFlags_AlphaPreviewHalf as i32;
         /// (WIP) ColorEdit: Currently onlys disable 0.0f..1.0f limits in RGBA editing (note: you
         /// probably want to use `ColorEditFlags::FLOAT` as well).
-        const HDR = sys::ImGuiColorEditFlags_HDR;
+        const HDR = sys::ImGuiColorEditFlags_HDR as i32;
         /// ColorEdit: display only as RGB. ColorPicker: Enable RGB display.
-        const DISPLAY_RGB = sys::ImGuiColorEditFlags_DisplayRGB;
+        const DISPLAY_RGB = sys::ImGuiColorEditFlags_DisplayRGB as i32;
         /// ColorEdit: display only as HSV. ColorPicker: Enable HSV display.
-        const DISPLAY_HSV = sys::ImGuiColorEditFlags_DisplayHSV;
+        const DISPLAY_HSV = sys::ImGuiColorEditFlags_DisplayHSV as i32;
         /// ColorEdit: display only as HEX. ColorPicker: Enable Hex display.
-        const DISPLAY_HEX = sys::ImGuiColorEditFlags_DisplayHex;
+        const DISPLAY_HEX = sys::ImGuiColorEditFlags_DisplayHex as i32;
         /// ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0..255.
-        const UINT8 = sys::ImGuiColorEditFlags_Uint8;
+        const UINT8 = sys::ImGuiColorEditFlags_Uint8 as i32;
         /// ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0.0f..1.0f floats
         /// instead of 0..255 integers. No round-trip of value via integers.
-        const FLOAT = sys::ImGuiColorEditFlags_Float;
+        const FLOAT = sys::ImGuiColorEditFlags_Float as i32;
         /// ColorPicker: bar for Hue, rectangle for Sat/Value.
-        const PICKER_HUE_BAR = sys::ImGuiColorEditFlags_PickerHueBar;
+        const PICKER_HUE_BAR = sys::ImGuiColorEditFlags_PickerHueBar as i32;
         /// ColorPicker: wheel for Hue, triangle for Sat/Value.
-        const PICKER_HUE_WHEEL = sys::ImGuiColorEditFlags_PickerHueWheel;
+        const PICKER_HUE_WHEEL = sys::ImGuiColorEditFlags_PickerHueWheel as i32;
         /// ColorEdit, ColorPicker: input and output data in RGB format.
-        const INPUT_RGB = sys::ImGuiColorEditFlags_InputRGB;
+        const INPUT_RGB = sys::ImGuiColorEditFlags_InputRGB as i32;
         /// ColorEdit, ColorPicker: input and output data in HSV format.
-        const INPUT_HSV = sys::ImGuiColorEditFlags_InputHSV;
+        const INPUT_HSV = sys::ImGuiColorEditFlags_InputHSV as i32;
     }
 }
 
@@ -1221,10 +1221,13 @@ impl Ui {
     /// Initializes current color editor/picker options (generally on application startup) if you
     /// want to select a default format, picker type, etc. Users will be able to change many
     /// settings, unless you use .options(false) in your widget builders.
+    ///
+    /// Note: As of Dear ImGui 1.92.9, SetColorEditOptions was deprecated in favor of directly
+    /// setting io.ConfigColorEditFlags.
     #[doc(alias = "SetColorEditOptions")]
     pub fn set_color_edit_options(&self, flags: ColorEditFlags) {
         unsafe {
-            sys::igSetColorEditOptions(flags.bits() as i32);
+            (*sys::igGetIO()).ConfigColorEditFlags = flags.bits();
         }
     }
 }

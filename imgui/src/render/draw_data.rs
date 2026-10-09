@@ -123,7 +123,6 @@ fn test_drawdata_memory_layout() {
     }
     assert_field_offset!(valid, Valid);
     assert_field_offset!(cmd_lists, CmdLists);
-    assert_field_offset!(cmd_lists_count, CmdListsCount);
     assert_field_offset!(total_idx_count, TotalIdxCount);
     assert_field_offset!(total_vtx_count, TotalVtxCount);
     assert_field_offset!(display_pos, DisplayPos);
@@ -364,10 +363,8 @@ impl From<&DrawData> for OwnedDrawData {
                 (*result).FramebufferScale = other_ptr.FramebufferScale;
                 (*result).OwnerViewport = other_ptr.OwnerViewport;
 
-                (*result).CmdListsCount = 0;
-                for i in 0..other_ptr.CmdListsCount as usize {
+                for i in 0..other_ptr.CmdLists.Size as usize {
                     sys::ImDrawData_AddDrawList(result, *other_ptr.CmdLists.Data.add(i));
-                    (*result).CmdListsCount += 1;
                 }
                 result
             },
@@ -381,7 +378,7 @@ impl Drop for OwnedDrawData {
         unsafe {
             if !self.draw_data.is_null() {
                 if !(*self.draw_data).CmdLists.Data.is_null() {
-                    for i in 0..(*self.draw_data).CmdListsCount as usize {
+                    for i in 0..(*self.draw_data).CmdLists.Size as usize {
                         let ptr = *(*self.draw_data).CmdLists.Data.add(i);
                         if !ptr.is_null() {
                             sys::ImDrawList_destroy(ptr);
@@ -413,7 +410,7 @@ fn test_owneddrawdata_from_drawdata() {
     let mut draw_lists_raw = [std::ptr::addr_of_mut!(draw_list)];
     let draw_data_raw = sys::ImDrawData {
         Valid: true,
-        CmdListsCount: 1,
+        FrameCount: 0,
         CmdLists: sys::ImVector_ImDrawListPtr {
             Size: 1,
             Capacity: 1,
@@ -436,8 +433,8 @@ fn test_owneddrawdata_from_drawdata() {
     let owned_draw_data_raw = unsafe { inner_draw_data.unwrap().raw() };
     assert_eq!(draw_data_raw.Valid, owned_draw_data_raw.Valid);
     assert_eq!(
-        draw_data_raw.CmdListsCount,
-        owned_draw_data_raw.CmdListsCount
+        draw_data_raw.CmdLists.Size,
+        owned_draw_data_raw.CmdLists.Size
     );
     assert!(!draw_data_raw.CmdLists.Data.is_null());
     assert_eq!(

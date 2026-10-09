@@ -455,20 +455,20 @@ bitflags::bitflags! {
     /// A temporary change in item flags, used in [`Ui::push_item_flag`].
     pub struct ItemFlag: i32 {
         /// Disable keyboard tabbing. This is a "lighter" version of [`ItemFlag::NO_NAV`].
-        const NO_TAB_STOP = sys::ImGuiItemFlags_NoTabStop;
+        const NO_TAB_STOP = sys::ImGuiItemFlags_NoTabStop as i32;
         /// Disable any form of focusing (keyboard/gamepad directional navigation and
         /// [`Ui::set_keyboard_focus_here`] calls).
-        const NO_NAV = sys::ImGuiItemFlags_NoNav;
+        const NO_NAV = sys::ImGuiItemFlags_NoNav as i32;
         /// Disable item being a candidate for default focus (e.g. used by title bar items).
-        const NO_NAV_DEFAULT_FOCUS = sys::ImGuiItemFlags_NoNavDefaultFocus;
+        const NO_NAV_DEFAULT_FOCUS = sys::ImGuiItemFlags_NoNavDefaultFocus as i32;
         /// Any button-like behavior will have repeat mode enabled (based on [`Io::key_repeat_delay`](crate::Io::key_repeat_delay)
         /// and [`Io::key_repeat_rate`](crate::Io::key_repeat_rate) values).
         /// Note that you can also call [`Ui::is_item_active`] after any button to tell if it is being held.
-        const BUTTON_REPEAT = sys::ImGuiItemFlags_ButtonRepeat;
+        const BUTTON_REPEAT = sys::ImGuiItemFlags_ButtonRepeat as i32;
         /// [`Ui::menu_item`]/[`Ui::selectable`] automatically close their parent popup window.
-        const AUTO_CLOSE_POPUPS = sys::ImGuiItemFlags_AutoClosePopups;
+        const AUTO_CLOSE_POPUPS = sys::ImGuiItemFlags_AutoClosePopups as i32;
         /// Allow submitting an item with the same identifier as an item already submitted this frame without triggering
         /// a warning tooltip if [`Io::config_debug_highlight_id_conflicts`](crate::Io::config_debug_highlight_id_conflicts) is set.
-        const ALLOW_DUPLICATE_ID = sys::ImGuiItemFlags_AllowDuplicateId;
+        const ALLOW_DUPLICATE_ID = sys::ImGuiItemFlags_AllowDuplicateId as i32;
     }
 }

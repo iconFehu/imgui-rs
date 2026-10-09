@@ -336,7 +336,7 @@ fn build_impl_block(
                 "        macro_rules! fn_opt_eq {\n\
             ($left:expr, $right:expr) => {\n\
                 match ($left, $right) {\n\
-                    (Some(a), Some(b)) => ::core::ptr::fn_addr_eq(a, b),\n\
+                    (Some(a), Some(b)) => a as usize == b as usize,\n\
                     (None, None) => true,\n\
                     _ => false,\n\
                 }\n\
@@ -348,7 +348,7 @@ fn build_impl_block(
             partial_eq.push_str(
                 "        macro_rules! fn_eq {\n\
             ($left:expr, $right:expr) => {\n\
-                ::core::ptr::fn_addr_eq($left, $right)\n\
+                $left as usize == $right as usize\n\
             };\n\
         }\n\n",
             );

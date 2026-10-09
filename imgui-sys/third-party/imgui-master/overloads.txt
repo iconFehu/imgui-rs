@@ -80,8 +80,8 @@ igMenuItem	2
 1	bool	igMenuItem_Bool (const char*,const char*,bool,bool)
 2	bool	igMenuItem_BoolPtr (const char*,const char*,bool*,bool)
 igOpenPopup	2
-1	void	igOpenPopup_Str (const char*,ImGuiPopupFlags)
-2	void	igOpenPopup_ID (ImGuiID,ImGuiPopupFlags)
+1	bool	igOpenPopup_Str (const char*,ImGuiPopupFlags)
+2	bool	igOpenPopup_ID (ImGuiID,ImGuiPopupFlags)
 igPlotHistogram	2
 1	void	igPlotHistogram_FloatPtr (const char*,const float*,int,int,const char*,float,float,ImVec2,int)
 2	void	igPlotHistogram_FnFloatPtr (const char*,float(*)(void*,int),void*,int,int,const char*,float,float,ImVec2)
